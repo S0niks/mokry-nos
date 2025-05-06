@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>О нас</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <div id="navbar"></div>
+  <h1>О нас</h1>
+  <p>Красноярская общественная организация защиты животных «Мокрый нос»</p>
+  <p>Контакты: info@wetnose.ru, +7 (391) 123-45-67</p>
+  <p><a href="https://vk.com/wetnose">Наша группа ВКонтакте</a></p>
+  <p>Отчетные документы: <a href="#">Скачать</a></p>
+  <script>
+    // Load navbar
+    fetch('components/navbar.html')
+      .then(response => response.text())
+      .then(data => document.getElementById('navbar').innerHTML = data);
+  </script>
+</body>
+</html>

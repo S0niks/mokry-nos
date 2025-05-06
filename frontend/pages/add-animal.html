@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Добавить животное</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <div id="navbar"></div>
+  <h1>Добавить животное</h1>
+  <div>
+    <input type="text" id="animal-name" placeholder="Имя">
+    <select id="animal-species">
+      <option value="cat">Кошка</option>
+      <option value="dog">Собака</option>
+    </select>
+    <select id="animal-gender">
+      <option value="male">Мужской</option>
+      <option value="female">Женский</option>
+    </select>
+    <textarea id="animal-description" placeholder="Описание"></textarea>
+    <input type="text" id="animal-status" placeholder="Статус">
+    <input type="text" id="animal-image" placeholder="URL изображения">
+    <button onclick="addAnimal()">Добавить</button>
+  </div>
+  <script src="js/animal.js"></script>
+  <script>
+    // Загрузка навигации
+    fetch('components/navbar.html')
+      .then(response => response.text())
+      .then(data => document.getElementById('navbar').innerHTML = data);
+  </script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Создать мероприятие</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <div id="navbar"></div>
+  <h1>Создать мероприятие</h1>
+  <div>
+    <input type="text" id="event-title" placeholder="Название">
+    <textarea id="event-description" placeholder="Описание"></textarea>
+    <input type="date" id="event-date">
+    <button onclick="createEvent()">Создать</button>
+  </div>
+  <script src="js/event.js"></script>
+  <script>
+    // Загрузка навигации
+    fetch('components/navbar.html')
+      .then(response => response.text())
+      .then(data => document.getElementById('navbar').innerHTML = data);
+  </script>
+</body>
+</html>
