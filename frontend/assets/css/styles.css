@@ -9,8 +9,6 @@ h1 {
   color: #333;
 }
 
-
-
 nav {
   background: #ff6200;
   padding: 15px;
@@ -50,8 +48,40 @@ button {
   color: white;
   border: none;
   cursor: pointer;
+  margin: 10px;
 }
 
 button:hover {
   background-color: #e65c00;
+}
+
+.animal-card {
+  border: 1px solid #ccc;
+  padding: 15px;
+  margin: 10px auto;
+  max-width: 300px;
+  text-align: left;
+}
+
+.animal-card img {
+  max-width: 100%;
+  height: auto;
+}
+
+form {
+  max-width: 300px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+form input, form select, form textarea {
+  width: 100%;
+  padding: 8px;
+  margin: 5px 0;
+  box-sizing: border-box;
+}
+
+#access-denied {
+  color: red;
+  margin: 20px;
 }

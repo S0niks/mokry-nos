@@ -2,65 +2,73 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Животные</title>
-  <link rel="stylesheet" href="assets/css/styles.css">
+  <title>Животные - Мокрый нос</title>
+  <link rel="stylesheet" href="/assets/css/styles.css">
 </head>
 <body>
   <div id="navbar"></div>
   <h1>Наши животные</h1>
-  <div>
-    <label>Вид:</label>
-    <select id="species-filter">
-      <option value="">Все</option>
-      <option value="cat">Кошка</option>
-      <option value="dog">Собака</option>
-    </select>
-    <label>Пол:</label>
-    <select id="gender-filter">
-      <option value="">Все</option>
-      <option value="male">Мужской</option>
-      <option value="female">Женский</option>
-    </select>
-    <button onclick="filterAnimals()">Фильтровать</button>
+  <div id="admin-controls" style="display: none;">
+    <button id="add-animal-button">Добавить животное</button>
   </div>
-  <div id="animal-container"></div>
-  <script src="js/animal.js"></script>
+  <div id="animals-list"></div>
   <script>
-    // Load navbar
     fetch('/components/navbar.html')
       .then(response => response.text())
       .then(data => document.getElementById('navbar').innerHTML = data)
       .catch(err => console.error('Ошибка загрузки навигации:', err));
 
-    // Load animals
-    function loadAnimals(species = '', gender = '') {
-      const query = new URLSearchParams({ species, gender }).toString();
-      fetch(`/api/animals?${query}`)
-        .then(response => response.json())
-        .then(animals => {
-          const container = document.getElementById('animal-container');
-          container.innerHTML = '';
-          animals.forEach(animal => {
-            const div = document.createElement('div');
-            div.innerHTML = `
-              <h3>${animal.name}</h3>
-              <p>Вид: ${animal.species}</p>
-              <p>Пол: ${animal.gender}</p>
-              <p>${animal.description}</p>
-              <p>Статус: ${animal.status}</p>
-            `;
-            container.appendChild(div);
-          });
+    // Проверка роли пользователя
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetch('/api/users/profile', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+        .then(response => {
+          if (!response.ok) throw new Error('Не удалось загрузить профиль');
+          return response.json();
+        })
+        .then(data => {
+          if (data.role === 'admin') {
+            document.getElementById('admin-controls').style.display = 'block';
+          }
+        })
+        .catch(err => {
+          console.error('Ошибка загрузки профиля:', err);
         });
     }
 
-    function filterAnimals() {
-      const species = document.getElementById('species-filter').value;
-      const gender = document.getElementById('gender-filter').value;
-      loadAnimals(species, gender);
-    }
+    // Загрузка списка животных
+    fetch('/api/animals')
+      .then(response => response.json())
+      .then(animals => {
+        const animalsList = document.getElementById('animals-list');
+        if (animals.length === 0) {
+          animalsList.innerHTML = '<p>Животных пока нет.</p>';
+        } else {
+          animalsList.innerHTML = animals.map(animal => `
+            <div class="animal-card">
+              <h3>${animal.name}</h3>
+              <p>Вид: ${animal.species}</p>
+              <p>Пол: ${animal.gender}</p>
+              <p>Описание: ${animal.description || 'Нет описания'}</p>
+              <p>Статус: ${animal.status}</p>
+              ${animal.image ? `<img src="${animal.image}" alt="${animal.name}" style="max-width: 200px;">` : ''}
+            </div>
+          `).join('');
+        }
+      })
+      .catch(err => {
+        console.error('Ошибка загрузки животных:', err);
+        document.getElementById('animals-list').innerHTML = '<p>Ошибка загрузки животных.</p>';
+      });
 
-    loadAnimals();
+    // Обработчик кнопки "Добавить животное"
+    document.getElementById('add-animal-button')?.addEventListener('click', () => {
+      window.location.href = '/pages/add-animal.html';
+    });
   </script>
 </body>
 </html>
