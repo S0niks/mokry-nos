@@ -2,55 +2,58 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Профиль</title>
-  <link rel="stylesheet" href="assets/css/styles.css">
+  <title>Профиль - Мокрый нос</title>
+  <link rel="stylesheet" href="/assets/css/styles.css">
 </head>
 <body>
   <div id="navbar"></div>
-  <h1>Профиль</h1>
-  <div id="user-info"></div>
-  <h2>Мои мероприятия</h2>
-  <div id="event-container"></div>
-  <script src="js/user.js"></script>
+  <h1>Ваш профиль</h1>
+  <div id="profile-info"></div>
+  <button id="logout-button">Выйти</button>
   <script>
-    // Load navbar
     fetch('/components/navbar.html')
-  .then(response => response.text())
-  .then(data => document.getElementById('navbar').innerHTML = data)
-  .catch(err => console.error('Ошибка загрузки навигации:', err));
+      .then(response => response.text())
+      .then(data => document.getElementById('navbar').innerHTML = data)
+      .catch(err => console.error('Ошибка загрузки навигации:', err));
 
-    // Load user info
     const token = localStorage.getItem('token');
-    if (token) {
+    console.log('Токен из localStorage:', token);
+
+    if (!token) {
+      console.log('Токен отсутствует, перенаправление на login.html');
+      window.location.href = '/pages/login.html';
+    } else {
       fetch('/api/users/profile', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
       })
-        .then(response => response.json())
-        .then(user => {
-          document.getElementById('user-info').innerHTML = `
-            <p>Имя: ${user.name}</p>
-            <p>Email: ${user.email}</p>
-            <p>Роль: ${user.role}</p>
+        .then(response => {
+          console.log('Статус ответа /api/users/profile:', response.status);
+          if (!response.ok) {
+            throw new Error(`Ошибка сервера: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Данные профиля:', data);
+          document.getElementById('profile-info').innerHTML = `
+            <p>Имя: ${data.name}</p>
+            <p>Email: ${data.email}</p>
+            <p>Роль: ${data.role}</p>
           `;
         })
-        .catch(() => window.location.href = 'login.html');
-    } else {
-      window.location.href = 'login.html';
+        .catch(err => {
+          console.error('Ошибка при загрузке профиля:', err);
+          alert('Ошибка загрузки профиля: ' + err.message);
+          window.location.href = '/pages/login.html';
+        });
     }
 
-    // Load user events
-    fetch('/api/events/my-events', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-      .then(response => response.json())
-      .then(events => {
-        const container = document.getElementById('event-container');
-        events.forEach(event => {
-          const div = document.createElement('div');
-          div.innerHTML = `<h3>${event.title}</h3><p>${event.description}</p><p>Дата: ${event.date}</p>`;
-          container.appendChild(div);
-        });
-      });
+    document.getElementById('logout-button').addEventListener('click', () => {
+      localStorage.removeItem('token');
+      window.location.href = '/pages/login.html';
+    });
   </script>
 </body>
 </html>

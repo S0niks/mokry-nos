@@ -2,30 +2,40 @@ console.log('Файл server.js начал выполняться');
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const db = require('./config/db');
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-// Отладка всех запросов
 app.use((req, res, next) => {
   console.log(`Запрос: ${req.method} ${req.url}`);
   next();
 });
 
-// Проверяем статические файлы
 app.use(express.static(path.join(__dirname, '../frontend'), {
-  index: false // Отключаем автоматическую отправку index.html
+  index: false
 }));
 
-// Явно обслуживаем index.html
+// Маршруты API
+const userRoutes = require('./routes/userRoutes');
+const animalRoutes = require('./routes/animalRoutes');
+app.use('/api/users', userRoutes);
+app.use('/api/animals', animalRoutes);
+
+// Временный маршрут для новостей
+app.get('/api/news', (req, res) => {
+  res.json([
+    { id: 1, title: 'Тестовая новость', content: 'Это пример', created_at: new Date().toISOString() }
+  ]);
+});
+
 app.get('/', (req, res) => {
   console.log('Обработка запроса на /');
   res.sendFile(path.join(__dirname, '../frontend/pages/index.html'));
 });
 
-// Отладка всех ответов
 app.use((req, res, next) => {
   const originalSend = res.send;
   res.send = function (body) {
@@ -35,7 +45,7 @@ app.use((req, res, next) => {
   next();
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Сервер запущен на порту ${PORT}`);
 });

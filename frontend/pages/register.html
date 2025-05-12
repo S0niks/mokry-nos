@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Регистрация - Мокрый нос</title>
+  <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+<body>
+  <div id="navbar"></div>
+  <h1>Регистрация</h1>
+  <form id="register-form">
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="password" placeholder="Пароль" required>
+    <input type="text" id="name" placeholder="Имя" required>
+    <select id="role" required>
+      <option value="guest">Гость</option>
+      <option value="volunteer">Волонтер</option>
+      <option value="admin">Админ</option>
+    </select>
+    <button type="submit">Зарегистрироваться</button>
+  </form>
+  <p>Уже есть аккаунт? <a href="/pages/login.html">Войдите</a></p>
+  <script>
+    fetch('/components/navbar.html')
+      .then(response => response.text())
+      .then(data => document.getElementById('navbar').innerHTML = data)
+      .catch(err => console.error('Ошибка загрузки навигации:', err));
+
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const name = document.getElementById('name').value;
+      const role = document.getElementById('role').value;
+
+      try {
+        const response = await fetch('/api/users/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password, name, role }),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          alert(data.message);
+          window.location.href = '/pages/login.html';
+        } else {
+          alert(data.message || 'Ошибка регистрации');
+        }
+      } catch (err) {
+        console.error('Ошибка при регистрации:', err);
+        alert('Произошла ошибка. Попробуйте снова.');
+      }
+    });
+  </script>
+</body>
+</html>
