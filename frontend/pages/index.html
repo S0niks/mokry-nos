@@ -13,15 +13,126 @@
 
   <button id="help-button">Хочу помочь!</button>
 
+  <h2>Новости</h2>
+  <div id="admin-news-controls" style="display: none;">
+    <button id="add-news-button">Добавить новость</button>
+  </div>
+  <div id="news-list"></div>
+
   <script>
     fetch('/components/navbar.html')
       .then(response => response.text())
       .then(data => document.getElementById('navbar').innerHTML = data)
       .catch(err => console.error('Ошибка загрузки навигации:', err));
-
+  
+    // Проверка роли пользователя
+    let userRole = null;
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetch('/api/users/profile', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+        .then(response => {
+          if (!response.ok) throw new Error('Не удалось загрузить профиль');
+          return response.json();
+        })
+        .then(data => {
+          userRole = data.role;
+          if (userRole === 'admin') {
+            document.getElementById('admin-news-controls').style.display = 'block';
+          }
+        })
+        .catch(err => {
+          console.error('Ошибка загрузки профиля:', err);
+        });
+    }
+  
+    // Загрузка новостей
+    fetch('/api/news')
+      .then(response => response.json())
+      .then(news => {
+        const newsList = document.getElementById('news-list');
+        if (news.length === 0) {
+          newsList.innerHTML = '<p>Новостей пока нет.</p>';
+        } else {
+          newsList.innerHTML = news.map(item => `
+            <div class="news-item">
+              <p>${item.text}</p>
+              ${item.media ? (item.media.endsWith('.mp4') ? 
+                `<video src="${item.media}" controls style="max-width: 100%;"></video>` : 
+                `<img src="${item.media}" alt="Media" style="max-width: 100%;">`) : ''}
+              <p class="news-meta">Добавлено: ${new Date(item.created_at).toLocaleString('ru-RU')}</p>
+              ${token && userRole === 'admin' ? `
+                <div class="news-actions">
+                  <button onclick="editNews(${item.id}, '${item.text}', '${item.media || ''}')">Редактировать</button>
+                  <button onclick="deleteNews(${item.id})">Удалить</button>
+                </div>
+              ` : ''}
+            </div>
+          `).join('');
+        }
+      })
+      .catch(err => {
+        console.error('Ошибка загрузки новостей:', err);
+        document.getElementById('news-list').innerHTML = '<p>Ошибка загрузки новостей.</p>';
+      });
+  
+    // Обработчик кнопки "Хочу помочь!"
     document.getElementById('help-button').addEventListener('click', () => {
       window.location.href = '/pages/help.html';
     });
+  
+    // Обработчик кнопки "Добавить новость"
+    document.getElementById('add-news-button')?.addEventListener('click', () => {
+      window.location.href = '/pages/add-news.html';
+    });
+  
+    // Функции для редактирования и удаления
+    window.editNews = function(id, text, media) {
+      const newText = prompt('Введите новый текст новости:', text);
+      const newMedia = prompt('Введите новый URL медиа (или оставьте пустым):', media);
+      if (newText) {
+        fetch(`/api/news/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ text: newText, media: newMedia || null }),
+        })
+          .then(response => response.json())
+          .then(data => {
+            alert(data.message);
+            window.location.reload();
+          })
+          .catch(err => {
+            console.error('Ошибка редактирования:', err);
+            alert('Ошибка редактирования новости');
+          });
+      }
+    };
+  
+    window.deleteNews = function(id) {
+      if (confirm('Вы уверены, что хотите удалить эту новость?')) {
+        fetch(`/api/news/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        })
+          .then(response => response.json())
+          .then(data => {
+            alert(data.message);
+            window.location.reload();
+          })
+          .catch(err => {
+            console.error('Ошибка удаления:', err);
+            alert('Ошибка удаления новости');
+          });
+      }
+    };
   </script>
 </body>
 </html>

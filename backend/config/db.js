@@ -32,6 +32,15 @@ db.serialize(() => {
       image TEXT
     )
   `);
+  db.run(`
+    CREATE TABLE IF NOT EXISTS news (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      text TEXT NOT NULL,
+      media TEXT, -- URL фото или видео
+      created_at TEXT NOT NULL, -- Дата и время в формате ISO
+      updated_at TEXT
+    )
+  `);
 });
 
 module.exports = db;

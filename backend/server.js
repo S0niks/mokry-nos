@@ -14,27 +14,13 @@ app.use((req, res, next) => {
   next();
 });
 
+// Статическая папка для фронтенда
 app.use(express.static(path.join(__dirname, '../frontend'), {
   index: false
 }));
 
-// Маршруты API
-const userRoutes = require('./routes/userRoutes');
-const animalRoutes = require('./routes/animalRoutes');
-app.use('/api/users', userRoutes);
-app.use('/api/animals', animalRoutes);
-
-// Временный маршрут для новостей
-app.get('/api/news', (req, res) => {
-  res.json([
-    { id: 1, title: 'Тестовая новость', content: 'Это пример', created_at: new Date().toISOString() }
-  ]);
-});
-
-app.get('/', (req, res) => {
-  console.log('Обработка запроса на /');
-  res.sendFile(path.join(__dirname, '../frontend/pages/index.html'));
-});
+// Статическая папка для изображений
+app.use('/images', express.static(path.join(__dirname, '../frontend/images')));
 
 app.use((req, res, next) => {
   const originalSend = res.send;
@@ -43,6 +29,19 @@ app.use((req, res, next) => {
     originalSend.call(this, body);
   };
   next();
+});
+
+// Маршруты API
+const userRoutes = require('./routes/userRoutes');
+const animalRoutes = require('./routes/animalRoutes');
+const newsRoutes = require('./routes/newsRoutes');
+app.use('/api/users', userRoutes);
+app.use('/api/animals', animalRoutes);
+app.use('/api/news', newsRoutes);
+
+app.get('/', (req, res) => {
+  console.log('Обработка запроса на /');
+  res.sendFile(path.join(__dirname, '../frontend/pages/index.html'));
 });
 
 const PORT = 3000;

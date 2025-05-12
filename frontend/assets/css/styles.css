@@ -5,7 +5,7 @@ body {
   text-align: center;
 }
 
-h1 {
+h1, h2 {
   color: #333;
 }
 
@@ -69,7 +69,7 @@ button:hover {
 }
 
 form {
-  max-width: 300px;
+  max-width: 500px;
   margin: 0 auto;
   text-align: left;
 }
@@ -81,7 +81,43 @@ form input, form select, form textarea {
   box-sizing: border-box;
 }
 
+form textarea {
+  height: 100px;
+}
+
 #access-denied {
   color: red;
   margin: 20px;
+}
+
+.news-item {
+  border: 1px solid #ccc;
+  padding: 15px;
+  margin: 20px auto;
+  max-width: 500px;
+  text-align: left;
+}
+
+.news-item img, .news-item video {
+  max-width: 100%;
+  margin: 10px 0;
+}
+
+.news-meta {
+  font-size: 0.9em;
+  color: #666;
+  margin-top: 10px;
+}
+
+.news-actions {
+  margin-top: 10px;
+}
+
+.news-actions button {
+  background-color: #666;
+  margin-right: 10px;
+}
+
+.news-actions button:hover {
+  background-color: #555;
 }

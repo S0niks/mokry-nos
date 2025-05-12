@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Добавить новость - Мокрый нос</title>
+  <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+<body>
+  <div id="navbar"></div>
+  <h1>Добавить новость</h1>
+  <div id="access-denied" style="display: none;">
+    <p>Доступ запрещен. Только администраторы могут добавлять новости.</p>
+    <a href="/pages/index.html">Вернуться на главную</a>
+  </div>
+  <form id="add-news-form" style="display: none;">
+    <textarea id="news-text" placeholder="Текст новости" required></textarea>
+    <input type="text" id="news-media" placeholder="URL фото или видео (например, /images/news.jpg или /videos/news.mp4)">
+    <button type="submit">Добавить</button>
+  </form>
+  <script>
+    fetch('/components/navbar.html')
+      .then(response => response.text())
+      .then(data => document.getElementById('navbar').innerHTML = data)
+      .catch(err => console.error('Ошибка загрузки навигации:', err));
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = '/pages/login.html';
+    } else {
+      fetch('/api/users/profile', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+        .then(response => {
+          if (!response.ok) throw new Error('Не удалось загрузить профиль');
+          return response.json();
+        })
+        .then(data => {
+          if (data.role === 'admin') {
+            document.getElementById('add-news-form').style.display = 'block';
+          } else {
+            document.getElementById('access-denied').style.display = 'block';
+          }
+        })
+        .catch(err => {
+          console.error('Ошибка загрузки профиля:', err);
+          window.location.href = '/pages/login.html';
+        });
+    }
+
+    document.getElementById('add-news-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = document.getElementById('news-text').value.trim();
+      const media = document.getElementById('news-media').value.trim();
+
+      if (!text) {
+        alert('Текст новости обязателен!');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/news', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ text, media }),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          alert('Новость добавлена!');
+          window.location.href = '/pages/index.html';
+        } else {
+          console.error('Ошибка сервера:', data);
+          alert(data.message || 'Ошибка добавления новости');
+        }
+      } catch (err) {
+        console.error('Ошибка:', err);
+        alert('Произошла ошибка. Попробуйте снова.');
+      }
+    });
+  </script>
+</body>
+</html>
