@@ -6,10 +6,8 @@ const db = require('./config/db');
 
 const app = express();
 
-// Парсинг JSON и URL-encoded данных
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 app.use(cors());
 
 app.use((req, res, next) => {
@@ -17,12 +15,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Статическая папка для фронтенда
-app.use(express.static(path.join(__dirname, '../frontend'), {
-  index: false
-}));
-
-// Статическая папка для изображений
+app.use(express.static(path.join(__dirname, '../frontend'), { index: false }));
 app.use('/images', express.static(path.join(__dirname, '../frontend/images')));
 
 app.use((req, res, next) => {
@@ -34,7 +27,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Маршруты API
 const userRoutes = require('./routes/userRoutes');
 const animalRoutes = require('./routes/animalRoutes');
 const newsRoutes = require('./routes/newsRoutes');

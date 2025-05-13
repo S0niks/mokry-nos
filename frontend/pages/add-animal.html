@@ -8,38 +8,52 @@
 <body>
   <div id="navbar"></div>
   <h1>Добавить животное</h1>
-  <div id="access-denied" style="display: none;">
-    <p>Доступ запрещен. Только администраторы могут добавлять животных.</p>
-    <a href="/pages/animals.html">Вернуться к списку животных</a>
+  <div id="add-animal-container">
+    <form id="add-animal-form">
+      <input type="text" id="name" placeholder="Имя животного" required>
+      <textarea id="description" placeholder="Описание" required></textarea>
+      <select id="species" required>
+        <option value="" disabled selected>Выберите вид</option>
+        <option value="cat">Кошка</option>
+        <option value="dog">Собака</option>
+      </select>
+      <select id="gender" required>
+        <option value="" disabled selected>Выберите пол</option>
+        <option value="male">Мужской</option>
+        <option value="female">Женский</option>
+      </select>
+      <select id="status" required>
+        <option value="" disabled selected>Выберите статус</option>
+        <option value="в поиске семьи">В поиске семьи</option>
+        <option value="нашел семью">Нашел семью</option>
+        <option value="на лечение">На лечение</option>
+      </select>
+      <input type="file" id="image" accept="image/jpeg,image/jpg,image/png">
+      <button type="submit">Добавить</button>
+    </form>
   </div>
-  <form id="add-animal-form" style="display: none;">
-    <input type="text" id="name" placeholder="Имя" required>
-    <select id="species" required>
-      <option value="cat">Кот</option>
-      <option value="dog">Собака</option>
-    </select>
-    <select id="gender" required>
-      <option value="male">Мужской</option>
-      <option value="female">Женский</option>
-    </select>
-    <textarea id="description" placeholder="Описание"></textarea>
-    <input type="text" id="status" placeholder="Статус (например, available)" required>
-    <input type="text" id="image" placeholder="URL изображения (например, /images/animal.jpg)">
-    <button type="submit">Добавить</button>
-  </form>
   <script>
     fetch('/components/navbar.html')
       .then(response => response.text())
-      .then(data => { 
+      .then(data => {
         document.getElementById('navbar').innerHTML = data;
-      // Добавляем логику отображения кнопок
         const token = localStorage.getItem('token');
         const authButtons = document.getElementById('auth-buttons');
         if (token) {
-          console.log('Пользователь авторизован, показываем Профиль');
-          authButtons.innerHTML = `<a href="/pages/profile.html">Профиль</a>`;
+          fetch('/api/users/profile', {
+            headers: { 'Authorization': `Bearer ${token}` },
+          })
+            .then(response => response.json())
+            .then(user => {
+              if (user.role !== 'admin') {
+                document.getElementById('add-animal-container').style.display = 'none';
+                alert('У вас нет прав для добавления животных. Обратитесь к администратору.');
+              } else {
+                authButtons.innerHTML = `<a href="/pages/profile.html">Профиль</a>`;
+              }
+            })
+            .catch(err => console.error('Ошибка проверки роли:', err));
         } else {
-          console.log('Пользователь не авторизован, показываем Вход');
           authButtons.innerHTML = `<a href="/pages/login.html">Вход</a>`;
         }
       })
@@ -48,52 +62,44 @@
     const token = localStorage.getItem('token');
     if (!token) {
       window.location.href = '/pages/login.html';
-    } else {
-      fetch('/api/users/profile', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      })
-        .then(response => {
-          if (!response.ok) throw new Error('Не удалось загрузить профиль');
-          return response.json();
-        })
-        .then(data => {
-          if (data.role === 'admin') {
-            document.getElementById('add-animal-form').style.display = 'block';
-          } else {
-            document.getElementById('access-denied').style.display = 'block';
-          }
-        })
-        .catch(err => {
-          console.error('Ошибка загрузки профиля:', err);
-          window.location.href = '/pages/login.html';
-        });
     }
 
-    document.getElementById('add-animal-form')?.addEventListener('submit', async (e) => {
+    document.getElementById('add-animal-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const name = document.getElementById('name').value;
+      const name = document.getElementById('name').value.trim();
+      const description = document.getElementById('description').value.trim();
       const species = document.getElementById('species').value;
       const gender = document.getElementById('gender').value;
-      const description = document.getElementById('description').value;
       const status = document.getElementById('status').value;
-      const image = document.getElementById('image').value;
+      const imageInput = document.getElementById('image');
+      const image = imageInput.files[0];
+
+      if (!name || !description || !species || !gender || !status) {
+        alert('Заполните все поля!');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('description', description);
+      formData.append('species', species);
+      formData.append('gender', gender);
+      formData.append('status', status);
+      if (image) formData.append('image', image);
 
       try {
         const response = await fetch('/api/animals', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
           },
-          body: JSON.stringify({ name, species, gender, description, status, image }),
+          body: formData,
         });
 
         const data = await response.json();
         if (response.ok) {
-          alert('Животное добавлено!');
-          window.location.href = '/pages/animals.html';
+          alert('Животное успешно добавлено!');
+          window.location.href = '/pages/profile.html';
         } else {
           alert(data.message || 'Ошибка добавления животного');
         }

@@ -1,4 +1,4 @@
-const db = require('../backend/config/db'); // Путь к db.js относительно reset-db.js
+const db = require('../backend/config/db');
 const bcrypt = require('bcryptjs');
 
 async function resetDB() {
@@ -22,11 +22,11 @@ async function resetDB() {
       CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         email TEXT UNIQUE NOT NULL,
-        phone TEXT NOT NULL CHECK(phone LIKE '+7%'), -- Новое поле для номера телефона
+        phone TEXT NOT NULL CHECK(phone LIKE '+7%'),
         password TEXT NOT NULL,
         name TEXT NOT NULL,
         role TEXT NOT NULL CHECK(role IN ('admin', 'volunteer')),
-        avatar TEXT -- Поле для пути к аватарке
+        avatar TEXT
       )
     `);
     db.run(`
@@ -36,7 +36,7 @@ async function resetDB() {
         species TEXT NOT NULL CHECK(species IN ('cat', 'dog')),
         gender TEXT NOT NULL CHECK(gender IN ('male', 'female')),
         description TEXT,
-        status TEXT NOT NULL,
+        status TEXT NOT NULL CHECK(status IN ('в поиске семьи', 'нашел семью', 'на лечение')),
         image TEXT
       )
     `);
@@ -73,7 +73,7 @@ async function resetDB() {
 
   db.run(
     `INSERT INTO animals (name, species, gender, description, status, image) VALUES (?, ?, ?, ?, ?, ?)`,
-    ['Барсик', 'cat', 'male', 'Добрый кот', 'available', '/images/barsik.jpg'],
+    ['Барсик', 'cat', 'male', 'Добрый кот', 'в поиске семьи', '/images/barsik.jpg'],
     (err) => {
       if (err) console.error('Ошибка добавления животного:', err);
       else console.log('Животное добавлено');

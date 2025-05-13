@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { authenticate, restrictTo } = require('../middleware/auth');
-const { addAnimal, getAllAnimals } = require('../controllers/animalController');
+const animalController = require('../controllers/animalController');
+const authMiddleware = require('../middleware/auth');
 
-router.get('/', getAllAnimals);
-router.post('/', authenticate, restrictTo('admin'), addAnimal);
+router.post('/', authMiddleware.authenticate, animalController.addAnimal);
+router.get('/', animalController.getAnimals);
 
 module.exports = router;

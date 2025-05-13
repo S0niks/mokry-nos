@@ -70,6 +70,21 @@ button:hover {
   height: auto;
 }
 
+.animal-item {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 10px 0;
+}
+
+#filters {
+  margin-bottom: 20px;
+}
+
+#filters select, #filters input {
+  margin-right: 10px;
+  padding: 5px;
+}
+
 form {
   max-width: 500px;
   margin: 0 auto;

@@ -7,82 +7,88 @@
 </head>
 <body>
   <div id="navbar"></div>
-  <h1>Наши животные</h1>
-  <div id="admin-controls" style="display: none;">
-    <button id="add-animal-button">Добавить животное</button>
+  <h1>Животные</h1>
+  <div id="filters">
+    <input type="text" id="name-filter" placeholder="Поиск по имени" onkeyup="loadAnimals()">
+    <select id="species-filter" multiple onchange="loadAnimals()">
+      <option value="">Все виды</option>
+      <option value="cat">Кошка</option>
+      <option value="dog">Собака</option>
+    </select>
+    <select id="gender-filter" multiple onchange="loadAnimals()">
+      <option value="">Все полы</option>
+      <option value="male">Мужской</option>
+      <option value="female">Женский</option>
+    </select>
+    <select id="status-filter" multiple onchange="loadAnimals()">
+      <option value="">Все статусы</option>
+      <option value="в поиске семьи">В поиске семьи</option>
+      <option value="нашел семью">Нашел семью</option>
+      <option value="на лечение">На лечение</option>
+    </select>
+    <button onclick="clearFilters()">Сбросить фильтры</button>
   </div>
   <div id="animals-list"></div>
   <script>
     fetch('/components/navbar.html')
       .then(response => response.text())
-      .then(data => document.getElementById('navbar').innerHTML = data)
-      .catch(err => console.error('Ошибка загрузки навигации:', err));fetch('/components/navbar.html')
-      .then(response => response.text())
-      .then(data => { 
+      .then(data => {
         document.getElementById('navbar').innerHTML = data;
-      // Добавляем логику отображения кнопок
         const token = localStorage.getItem('token');
         const authButtons = document.getElementById('auth-buttons');
         if (token) {
-          console.log('Пользователь авторизован, показываем Профиль');
           authButtons.innerHTML = `<a href="/pages/profile.html">Профиль</a>`;
         } else {
-          console.log('Пользователь не авторизован, показываем Вход');
           authButtons.innerHTML = `<a href="/pages/login.html">Вход</a>`;
         }
       })
+      .catch(err => console.error('Ошибка загрузки навигации:', err));
 
-    // Проверка роли пользователя
-    const token = localStorage.getItem('token');
-    if (token) {
-      fetch('/api/users/profile', {
+    function loadAnimals() {
+      const token = localStorage.getItem('token');
+      const name = document.getElementById('name-filter').value;
+      const species = Array.from(document.getElementById('species-filter').selectedOptions).map(opt => opt.value).filter(v => v);
+      const gender = Array.from(document.getElementById('gender-filter').selectedOptions).map(opt => opt.value).filter(v => v);
+      const status = Array.from(document.getElementById('status-filter').selectedOptions).map(opt => opt.value).filter(v => v);
+
+      const params = new URLSearchParams();
+      if (name) params.append('name', name);
+      if (species.length) params.append('species', species.join(','));
+      if (gender.length) params.append('gender', gender.join(','));
+      if (status.length) params.append('status', status.join(','));
+
+      fetch(`/api/animals?${params.toString()}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
       })
-        .then(response => {
-          if (!response.ok) throw new Error('Не удалось загрузить профиль');
-          return response.json();
-        })
-        .then(data => {
-          if (data.role === 'admin') {
-            document.getElementById('admin-controls').style.display = 'block';
-          }
-        })
-        .catch(err => {
-          console.error('Ошибка загрузки профиля:', err);
-        });
-    }
-
-    // Загрузка списка животных
-    fetch('/api/animals')
-      .then(response => response.json())
-      .then(animals => {
-        const animalsList = document.getElementById('animals-list');
-        if (animals.length === 0) {
-          animalsList.innerHTML = '<p>Животных пока нет.</p>';
-        } else {
+        .then(response => response.json())
+        .then(animals => {
+          const animalsList = document.getElementById('animals-list');
           animalsList.innerHTML = animals.map(animal => `
-            <div class="animal-card">
+            <div class="animal-item">
               <h3>${animal.name}</h3>
-              <p>Вид: ${animal.species}</p>
-              <p>Пол: ${animal.gender}</p>
-              <p>Описание: ${animal.description || 'Нет описания'}</p>
+              <p>Вид: ${animal.species === 'cat' ? 'Кошка' : 'Собака'}</p>
+              <p>Пол: ${animal.gender === 'male' ? 'Мужской' : 'Женский'}</p>
               <p>Статус: ${animal.status}</p>
+              <p>Описание: ${animal.description || 'Нет описания'}</p>
               ${animal.image ? `<img src="${animal.image}" alt="${animal.name}" style="max-width: 200px;">` : ''}
             </div>
           `).join('');
-        }
-      })
-      .catch(err => {
-        console.error('Ошибка загрузки животных:', err);
-        document.getElementById('animals-list').innerHTML = '<p>Ошибка загрузки животных.</p>';
-      });
+        })
+        .catch(err => console.error('Ошибка загрузки животных:', err));
+    }
 
-    // Обработчик кнопки "Добавить животное"
-    document.getElementById('add-animal-button')?.addEventListener('click', () => {
-      window.location.href = '/pages/add-animal.html';
-    });
+    function clearFilters() {
+      document.getElementById('name-filter').value = '';
+      document.getElementById('species-filter').selectedIndex = 0;
+      document.getElementById('gender-filter').selectedIndex = 0;
+      document.getElementById('status-filter').selectedIndex = 0;
+      loadAnimals();
+    }
+
+    // Загрузка животных при открытии страницы
+    window.onload = loadAnimals;
   </script>
 </body>
 </html>

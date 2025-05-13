@@ -94,10 +94,8 @@
             alert('Выберите файл для загрузки!');
             return;
           }
-
           const formData = new FormData();
           formData.append('avatar', file);
-
           try {
             const response = await fetch('/api/users/avatar', {
               method: 'POST',
@@ -106,7 +104,6 @@
               },
               body: formData,
             });
-
             const data = await response.json();
             if (response.ok) {
               alert('Аватар успешно загружен!');
@@ -131,7 +128,6 @@
       window.location.href = '/pages/login.html';
     });
 
-    // Функция для изменения роли
     window.updateRole = async (userId, newRole) => {
       if (confirm(`Сделать пользователя с ID ${userId} администратором?`)) {
         try {
@@ -143,7 +139,6 @@
             },
             body: JSON.stringify({ role: newRole }),
           });
-
           const data = await response.json();
           if (response.ok) {
             alert('Роль обновлена!');
