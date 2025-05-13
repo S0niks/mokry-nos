@@ -12,9 +12,9 @@
     <p>Доступ запрещен. Только администраторы могут добавлять новости.</p>
     <a href="/pages/index.html">Вернуться на главную</a>
   </div>
-  <form id="add-news-form" style="display: none;">
+  <form id="add-news-form" style="display: none;" enctype="multipart/form-data">
     <textarea id="news-text" placeholder="Текст новости" required></textarea>
-    <input type="text" id="news-media" placeholder="URL фото или видео (например, /images/news.jpg или /videos/news.mp4)">
+    <input type="file" id="news-media" name="media" accept="image/jpeg,image/jpg,image/png,video/mp4">
     <button type="submit">Добавить</button>
   </form>
   <script>
@@ -52,21 +52,26 @@
     document.getElementById('add-news-form')?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const text = document.getElementById('news-text').value.trim();
-      const media = document.getElementById('news-media').value.trim();
+      const media = document.getElementById('news-media').files[0];
 
       if (!text) {
         alert('Текст новости обязателен!');
         return;
       }
 
+      const formData = new FormData();
+      formData.append('text', text);
+      if (media) {
+        formData.append('media', media);
+      }
+
       try {
         const response = await fetch('/api/news', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
           },
-          body: JSON.stringify({ text, media }),
+          body: formData,
         });
 
         const data = await response.json();

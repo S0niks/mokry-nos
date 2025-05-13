@@ -6,8 +6,11 @@ const db = require('./config/db');
 
 const app = express();
 
-app.use(cors());
+// Парсинг JSON и URL-encoded данных
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use(cors());
 
 app.use((req, res, next) => {
   console.log(`Запрос: ${req.method} ${req.url}`);
