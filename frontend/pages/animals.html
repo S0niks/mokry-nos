@@ -8,6 +8,9 @@
 <body>
   <div id="navbar"></div>
   <h1>Животные</h1>
+  <div id="admin-actions" style="display: none; margin-bottom: 20px;">
+    <button onclick="window.location.href='/pages/add-animal.html'">Добавить животное</button>
+  </div>
   <div id="filters">
     <input type="text" id="name-filter" placeholder="Поиск по имени" onkeyup="loadAnimals()">
     <select id="species-filter" multiple onchange="loadAnimals()">
@@ -30,6 +33,8 @@
   </div>
   <div id="animals-list"></div>
   <script>
+    let userRole = null;
+
     fetch('/components/navbar.html')
       .then(response => response.text())
       .then(data => {
@@ -37,9 +42,22 @@
         const token = localStorage.getItem('token');
         const authButtons = document.getElementById('auth-buttons');
         if (token) {
-          authButtons.innerHTML = `<a href="/pages/profile.html">Профиль</a>`;
+          fetch('/api/users/profile', {
+            headers: { 'Authorization': `Bearer ${token}` },
+          })
+            .then(response => response.json())
+            .then(user => {
+              userRole = user.role;
+              if (userRole === 'admin') {
+                document.getElementById('admin-actions').style.display = 'block';
+              }
+              authButtons.innerHTML = `<a href="/pages/profile.html">Профиль</a>`;
+              loadAnimals();
+            })
+            .catch(err => console.error('Ошибка проверки роли:', err));
         } else {
           authButtons.innerHTML = `<a href="/pages/login.html">Вход</a>`;
+          loadAnimals();
         }
       })
       .catch(err => console.error('Ошибка загрузки навигации:', err));
@@ -59,7 +77,7 @@
 
       fetch(`/api/animals?${params.toString()}`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${token || ''}`,
         },
       })
         .then(response => response.json())
@@ -67,12 +85,16 @@
           const animalsList = document.getElementById('animals-list');
           animalsList.innerHTML = animals.map(animal => `
             <div class="animal-item">
-              <h3>${animal.name}</h3>
+              <h3>${animal.name.charAt(0).toUpperCase() + animal.name.slice(1)}</h3>
               <p>Вид: ${animal.species === 'cat' ? 'Кошка' : 'Собака'}</p>
               <p>Пол: ${animal.gender === 'male' ? 'Мужской' : 'Женский'}</p>
               <p>Статус: ${animal.status}</p>
               <p>Описание: ${animal.description || 'Нет описания'}</p>
               ${animal.image ? `<img src="${animal.image}" alt="${animal.name}" style="max-width: 200px;">` : ''}
+              <div class="admin-buttons" style="display: ${userRole === 'admin' ? 'block' : 'none'};">
+                <button onclick="editAnimal(${animal.id})">Редактировать</button>
+                <button onclick="deleteAnimal(${animal.id})">Удалить</button>
+              </div>
             </div>
           `).join('');
         })
@@ -87,8 +109,52 @@
       loadAnimals();
     }
 
-    // Загрузка животных при открытии страницы
-    window.onload = loadAnimals;
+    function editAnimal(id) {
+      window.location.href = `/pages/edit-animal.html?id=${id}`;
+    }
+
+    async function deleteAnimal(id) {
+      if (confirm('Вы уверены, что хотите удалить это животное?')) {
+        const token = localStorage.getItem('token');
+        try {
+          const response = await fetch(`/api/animals/${id}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          });
+          const data = await response.json();
+          if (response.ok) {
+            alert('Животное удалено!');
+            loadAnimals();
+          } else {
+            alert(data.message || 'Ошибка удаления животного');
+          }
+        } catch (err) {
+          console.error('Ошибка:', err);
+          alert('Произошла ошибка. Попробуйте снова.');
+        }
+      }
+    }
+
+    window.onload = () => {
+      if (!userRole && localStorage.getItem('token')) {
+        fetch('/api/users/profile', {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+        })
+          .then(response => response.json())
+          .then(user => {
+            userRole = user.role;
+            if (userRole === 'admin') {
+              document.getElementById('admin-actions').style.display = 'block';
+            }
+            loadAnimals();
+          })
+          .catch(err => console.error('Ошибка проверки роли:', err));
+      } else {
+        loadAnimals();
+      }
+    };
   </script>
 </body>
 </html>

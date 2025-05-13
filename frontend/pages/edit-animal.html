@@ -2,34 +2,34 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Добавить животное - Мокрый нос</title>
+  <title>Редактировать животное - Мокрый нос</title>
   <link rel="stylesheet" href="/assets/css/styles.css">
 </head>
 <body>
   <div id="navbar"></div>
-  <h1>Добавить животное</h1>
-  <div id="add-animal-container">
-    <form id="add-animal-form">
+  <h1>Редактировать животное</h1>
+  <div id="edit-animal-container">
+    <form id="edit-animal-form">
       <input type="text" id="name" placeholder="Имя животного" required>
       <textarea id="description" placeholder="Описание" required></textarea>
       <select id="species" required>
-        <option value="" disabled selected>Выберите вид</option>
+        <option value="" disabled>Выберите вид</option>
         <option value="cat">Кошка</option>
         <option value="dog">Собака</option>
       </select>
       <select id="gender" required>
-        <option value="" disabled selected>Выберите пол</option>
+        <option value="" disabled>Выберите пол</option>
         <option value="male">Мужской</option>
         <option value="female">Женский</option>
       </select>
       <select id="status" required>
-        <option value="" disabled selected>Выберите статус</option>
+        <option value="" disabled>Выберите статус</option>
         <option value="в поиске семьи">В поиске семьи</option>
         <option value="нашел семью">Нашел семью</option>
         <option value="на лечение">На лечение</option>
       </select>
       <input type="file" id="image" accept="image/jpeg,image/jpg,image/png">
-      <button type="submit">Добавить</button>
+      <button type="submit">Сохранить изменения</button>
     </form>
   </div>
   <script>
@@ -46,8 +46,8 @@
             .then(response => response.json())
             .then(user => {
               if (user.role !== 'admin') {
-                document.getElementById('add-animal-container').style.display = 'none';
-                alert('У вас нет прав для добавления животных. Обратитесь к администратору.');
+                document.getElementById('edit-animal-container').style.display = 'none';
+                alert('У вас нет прав для редактирования животных. Обратитесь к администратору.');
               } else {
                 authButtons.innerHTML = `<a href="/pages/profile.html">Профиль</a>`;
               }
@@ -64,7 +64,35 @@
       window.location.href = '/pages/login.html';
     }
 
-    document.getElementById('add-animal-form').addEventListener('submit', async (e) => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const animalId = urlParams.get('id');
+
+    fetch(`/api/animals/${animalId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    })
+      .then(response => response.json())
+      .then(animal => {
+        if (!animal) {
+          alert('Животное не найдено');
+          window.location.href = '/pages/animals.html';
+          return;
+        }
+        // Отображаем имя с заглавной буквы
+        document.getElementById('name').value = animal.name.charAt(0).toUpperCase() + animal.name.slice(1);
+        document.getElementById('description').value = animal.description;
+        document.getElementById('species').value = animal.species;
+        document.getElementById('gender').value = animal.gender;
+        document.getElementById('status').value = animal.status;
+      })
+      .catch(err => {
+        console.error('Ошибка загрузки животного:', err);
+        alert('Ошибка загрузки данных животного');
+        window.location.href = '/pages/animals.html';
+      });
+
+    document.getElementById('edit-animal-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = document.getElementById('name').value.trim();
       const description = document.getElementById('description').value.trim();
@@ -88,8 +116,8 @@
       if (image) formData.append('image', image);
 
       try {
-        const response = await fetch('/api/animals', {
-          method: 'POST',
+        const response = await fetch(`/api/animals/${animalId}`, {
+          method: 'PUT',
           headers: {
             'Authorization': `Bearer ${token}`,
           },
@@ -98,10 +126,10 @@
 
         const data = await response.json();
         if (response.ok) {
-          alert('Животное успешно добавлено!');
-          window.location.href = '/pages/profile.html';
+          alert('Животное успешно обновлено!');
+          window.location.href = '/pages/animals.html';
         } else {
-          alert(data.message || 'Ошибка добавления животного');
+          alert(data.message || 'Ошибка обновления животного');
         }
       } catch (err) {
         console.error('Ошибка:', err);

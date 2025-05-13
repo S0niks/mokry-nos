@@ -7,7 +7,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error('Ошибка подключения к базе данных:', err.message);
   } else {
-    console.log('Подключено к базе данных SQLite');
+    console.log('Подключено к базе данных SQLite SQLite: wetnose.db');
   }
 });
 
