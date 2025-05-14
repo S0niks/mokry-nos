@@ -9,7 +9,7 @@
   <div id="navbar"></div>
   <h1>Добавить животное</h1>
   <div id="add-animal-container">
-    <form id="add-animal-form">
+    <form id="add-animal-form" enctype="multipart/form-data">
       <input type="text" id="name" placeholder="Имя животного" required>
       <textarea id="description" placeholder="Описание" required></textarea>
       <select id="species" required>
@@ -28,7 +28,8 @@
         <option value="нашел семью">Нашел семью</option>
         <option value="на лечение">На лечение</option>
       </select>
-      <input type="file" id="image" accept="image/jpeg,image/jpg,image/png">
+      <input type="file" id="image" name="image" accept="image/jpeg,image/jpg,image/png">
+      <div id="image-preview" style="margin-top: 10px;"></div>
       <button type="submit">Добавить</button>
     </form>
   </div>
@@ -43,7 +44,10 @@
           fetch('/api/users/profile', {
             headers: { 'Authorization': `Bearer ${token}` },
           })
-            .then(response => response.json())
+            .then(response => {
+              if (!response.ok) throw new Error('Ошибка авторизации');
+              return response.json();
+            })
             .then(user => {
               if (user.role !== 'admin') {
                 document.getElementById('add-animal-container').style.display = 'none';
@@ -52,9 +56,14 @@
                 authButtons.innerHTML = `<a href="/pages/profile.html">Профиль</a>`;
               }
             })
-            .catch(err => console.error('Ошибка проверки роли:', err));
+            .catch(err => {
+              console.error('Ошибка проверки роли:', err);
+              localStorage.removeItem('token');
+              window.location.href = '/pages/login.html';
+            });
         } else {
           authButtons.innerHTML = `<a href="/pages/login.html">Вход</a>`;
+          window.location.href = '/pages/login.html';
         }
       })
       .catch(err => console.error('Ошибка загрузки навигации:', err));
@@ -64,6 +73,19 @@
       window.location.href = '/pages/login.html';
     }
 
+    document.getElementById('image').addEventListener('change', (e) => {
+      const preview = document.getElementById('image-preview');
+      preview.innerHTML = '';
+      const file = e.target.files[0];
+      if (file) {
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        img.style.maxWidth = '200px';
+        img.style.marginTop = '10px';
+        preview.appendChild(img);
+      }
+    });
+
     document.getElementById('add-animal-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = document.getElementById('name').value.trim();
@@ -71,8 +93,6 @@
       const species = document.getElementById('species').value;
       const gender = document.getElementById('gender').value;
       const status = document.getElementById('status').value;
-      const imageInput = document.getElementById('image');
-      const image = imageInput.files[0];
 
       if (!name || !description || !species || !gender || !status) {
         alert('Заполните все поля!');
@@ -80,12 +100,15 @@
       }
 
       const formData = new FormData();
-      formData.append('name', name.toLocaleLowerCase('ru-RU')); // Сохраняем в нижнем регистре
+      formData.append('name', name);
       formData.append('description', description);
       formData.append('species', species);
       formData.append('gender', gender);
       formData.append('status', status);
-      if (image) formData.append('image', image);
+      const imageInput = document.getElementById('image');
+      if (imageInput.files[0]) {
+        formData.append('image', imageInput.files[0]);
+      }
 
       try {
         const response = await fetch('/api/animals', {
@@ -99,7 +122,7 @@
         const data = await response.json();
         if (response.ok) {
           alert('Животное успешно добавлено!');
-          window.location.href = '/pages/animals.html';
+          window.location.href = '/pages/profile.html';
         } else {
           alert(data.message || 'Ошибка добавления животного');
         }

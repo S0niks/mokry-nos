@@ -37,7 +37,9 @@ async function resetDB() {
         gender TEXT NOT NULL CHECK(gender IN ('male', 'female')),
         description TEXT,
         status TEXT NOT NULL CHECK(status IN ('в поиске семьи', 'нашел семью', 'на лечение')),
-        image TEXT
+        image TEXT,
+        archived INTEGER DEFAULT 0,
+        updated_at TEXT
       )
     `);
     db.run(`
@@ -45,8 +47,10 @@ async function resetDB() {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         text TEXT NOT NULL,
         media TEXT,
+        media_type TEXT,
         created_at TEXT NOT NULL,
-        updated_at TEXT
+        updated_at TEXT,
+        archived INTEGER DEFAULT 0
       )
     `);
   });
@@ -70,15 +74,6 @@ async function resetDB() {
       else console.log('Пользователь volunteer добавлен');
     }
   );
-
-  /* db.run(
-    `INSERT INTO animals (name, species, gender, description, status, image) VALUES (?, ?, ?, ?, ?, ?)`,
-    ['Барсик', 'cat', 'male', 'Добрый кот', 'в поиске семьи', '/images/barsik.jpg'],
-    (err) => {
-      if (err) console.error('Ошибка добавления животного:', err);
-      else console.log('Животное добавлено');
-    }
-  );*/
 
   db.close();
 }

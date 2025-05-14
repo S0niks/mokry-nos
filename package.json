@@ -4,7 +4,7 @@
   "description": "��#\u0000 \u0000m\u0000o\u0000k\u0000r\u0000y\u0000-\u0000n\u0000o\u0000s\u0000\r\u0000 \u0000",
   "main": "index.js",
   "scripts": {
-    "start": "cd backend && node server.js", 
+    "start": "cd backend && node server.js",
     "dev": "cd backend && nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -27,6 +27,7 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.2",
     "nodemon": "^3.1.10",
+    "sharp": "^0.34.1",
     "sqlite3": "^5.1.7"
   }
 }
