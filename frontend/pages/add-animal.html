@@ -99,7 +99,7 @@
         const data = await response.json();
         if (response.ok) {
           alert('Животное успешно добавлено!');
-          window.location.href = '/pages/profile.html';
+          window.location.href = '/pages/animals.html';
         } else {
           alert(data.message || 'Ошибка добавления животного');
         }
