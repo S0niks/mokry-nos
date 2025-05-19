@@ -58,7 +58,7 @@ async function resetDB() {
         updated_at TEXT
       )
     `);
-    // Таблица events (новая)
+  
   db.run(`
     CREATE TABLE IF NOT EXISTS events (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -71,7 +71,7 @@ async function resetDB() {
     )
   `);
 
-  // Таблица user_events (для "лайков" мероприятий)
+
   db.run(`
     CREATE TABLE IF NOT EXISTS user_events (
       user_id INTEGER,

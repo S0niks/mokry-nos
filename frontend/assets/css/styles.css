@@ -72,10 +72,39 @@ button:hover {
   height: auto;
 }
 
+#animal-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
 .animal-item {
   border: 1px solid #ccc;
-  padding: 10px;
+  padding: 15px;
+  border-radius: 5px;
+  max-width: 500px;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.animal-item img {
+  max-width: 100%;
   margin: 10px 0;
+}
+
+.animal-actions {
+  margin-top: 10px;
+}
+
+.animal-actions button {
+  background-color: #666;
+  margin-right: 10px;
+}
+
+.animal-actions button:hover {
+  background-color: #555;
 }
 
 #filters {
@@ -232,7 +261,7 @@ form textarea {
   top: 10px;
   right: 15px;
   font-size: 24px;
-  font-weight bold;
+  font-weight: bold;
   color: #333;
   cursor: pointer;
 }

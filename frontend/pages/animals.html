@@ -2,159 +2,374 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Животные - Мокрый нос</title>
-  <link rel="stylesheet" href="/assets/css/styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Животные</title>
+  <link rel="stylesheet" href="../assets/css/styles.css">
 </head>
 <body>
   <div id="navbar"></div>
+
   <h1>Животные</h1>
-  <div id="admin-actions" style="display: none; margin-bottom: 20px;">
-    <button onclick="window.location.href='/pages/add-animal.html'">Добавить животное</button>
+
+  <div id="admin-actions" style="display: none;">
+    <button id="open-add-animal-modal">Добавить животное</button>
   </div>
+
   <div id="filters">
-    <input type="text" id="name-filter" placeholder="Поиск по имени" onkeyup="loadAnimals()">
-    <select id="species-filter" multiple onchange="loadAnimals()">
+    <input type="text" id="name-filter" placeholder="Поиск по имени">
+    <select id="species-filter">
       <option value="">Все виды</option>
       <option value="cat">Кошка</option>
       <option value="dog">Собака</option>
     </select>
-    <select id="gender-filter" multiple onchange="loadAnimals()">
+    <select id="gender-filter">
       <option value="">Все полы</option>
       <option value="male">Мужской</option>
       <option value="female">Женский</option>
     </select>
-    <select id="status-filter" multiple onchange="loadAnimals()">
+    <select id="status-filter">
       <option value="">Все статусы</option>
       <option value="в поиске семьи">В поиске семьи</option>
       <option value="нашел семью">Нашел семью</option>
       <option value="на лечение">На лечение</option>
     </select>
-    <button onclick="clearFilters()">Сбросить фильтры</button>
+    <button id="reset-filters">Сбросить фильтры</button>
   </div>
-  <div id="animals-list"></div>
-  <script>
-    let userRole = null;
 
-    fetch('/components/navbar.html')
+  <div id="animal-list"></div>
+
+  <!-- Модальное окно для добавления животного -->
+  <div id="add-animal-modal" class="modal">
+    <div class="modal-content">
+      <span class="modal-close">×</span>
+      <h2>Добавить животное</h2>
+      <form id="add-animal-form">
+        <label for="add-animal-name">Имя:</label>
+        <input type="text" id="add-animal-name" required>
+        
+        <label for="add-animal-description">Описание:</label>
+        <textarea id="add-animal-description" required></textarea>
+        
+        <label for="add-animal-species">Вид:</label>
+        <select id="add-animal-species" required>
+          <option value="cat">Кошка</option>
+          <option value="dog">Собака</option>
+        </select>
+        
+        <label for="add-animal-gender">Пол:</label>
+        <select id="add-animal-gender" required>
+          <option value="male">Мужской</option>
+          <option value="female">Женский</option>
+        </select>
+        
+        <label for="add-animal-status">Статус:</label>
+        <select id="add-animal-status" required>
+          <option value="в поиске семьи">В поиске семьи</option>
+          <option value="нашел семью">Нашел семью</option>
+          <option value="на лечение">На лечение</option>
+        </select>
+        
+        <label for="add-animal-image">Изображение:</label>
+        <input type="file" id="add-animal-image" accept="image/jpeg,image/jpg,image/png">
+        
+        <button type="submit">Добавить</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Модальное окно для редактирования животного -->
+  <div id="edit-animal-modal" class="modal">
+    <div class="modal-content">
+      <span class="modal-close">×</span>
+      <h2>Редактировать животное</h2>
+      <form id="edit-animal-form">
+        <input type="hidden" id="edit-animal-id">
+        <label for="edit-animal-name">Имя:</label>
+        <input type="text" id="edit-animal-name" required>
+        
+        <label for="edit-animal-description">Описание:</label>
+        <textarea id="edit-animal-description" required></textarea>
+        
+        <label for="edit-animal-species">Вид:</label>
+        <select id="edit-animal-species" required>
+          <option value="cat">Кошка</option>
+          <option value="dog">Собака</option>
+        </select>
+        
+        <label for="edit-animal-gender">Пол:</label>
+        <select id="edit-animal-gender" required>
+          <option value="male">Мужской</option>
+          <option value="female">Женский</option>
+        </select>
+        
+        <label for="edit-animal-status">Статус:</label>
+        <select id="edit-animal-status" required>
+          <option value="в поиске семьи">В поиске семьи</option>
+          <option value="нашел семью">Нашел семью</option>
+          <option value="на лечение">На лечение</option>
+        </select>
+        
+        <label for="edit-animal-image">Изображение:</label>
+        <input type="file" id="edit-animal-image" accept="image/jpeg,image/jpg,image/png">
+        <p>Текущее изображение: <span id="edit-animal-current-image"></span></p>
+        
+        <button type="submit">Сохранить</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Модальное окно для удаления животного -->
+  <div id="delete-animal-modal" class="modal">
+    <div class="modal-content">
+      <span class="modal-close">×</span>
+      <h2>Удалить животное</h2>
+      <p>Вы уверены, что хотите удалить животное "<span id="delete-animal-name"></span>"?</p>
+      <input type="hidden" id="delete-animal-id">
+      <button id="confirm-delete-animal">Удалить</button>
+      <button class="cancel-button">Отмена</button>
+    </div>
+  </div>
+
+  <script>
+    // Загрузка навигационной панели
+    fetch('../components/navbar.html')
       .then(response => response.text())
       .then(data => {
         document.getElementById('navbar').innerHTML = data;
-        const token = localStorage.getItem('token');
-        const authButtons = document.getElementById('auth-buttons');
-        if (token) {
-          fetch('/api/users/profile', {
-            headers: { 'Authorization': `Bearer ${token}` },
-          })
-            .then(response => response.json())
-            .then(user => {
-              userRole = user.role;
-              if (userRole === 'admin') {
-                document.getElementById('admin-actions').style.display = 'block';
-              }
-              authButtons.innerHTML = `<a href="/pages/profile.html">Профиль</a>`;
-              loadAnimals();
-            })
-            .catch(err => console.error('Ошибка проверки роли:', err));
-        } else {
-          authButtons.innerHTML = `<a href="/pages/login.html">Вход</a>`;
-          loadAnimals();
-        }
-      })
-      .catch(err => console.error('Ошибка загрузки навигации:', err));
+        updateAuthButtons();
+      });
 
-    function loadAnimals() {
+    // Обновление кнопок авторизации
+    function updateAuthButtons() {
       const token = localStorage.getItem('token');
-      const name = document.getElementById('name-filter').value;
-      const species = Array.from(document.getElementById('species-filter').selectedOptions).map(opt => opt.value).filter(v => v);
-      const gender = Array.from(document.getElementById('gender-filter').selectedOptions).map(opt => opt.value).filter(v => v);
-      const status = Array.from(document.getElementById('status-filter').selectedOptions).map(opt => opt.value).filter(v => v);
+      const authButtons = document.getElementById('auth-buttons');
+      if (token) {
+        authButtons.innerHTML = `<a href="profile.html">Профиль</a>`;
+      } else {
+        authButtons.innerHTML = `<a href="login.html">Вход</a>`;
+      }
+    }
 
-      const params = new URLSearchParams();
-      if (name) params.append('name', name);
-      if (species.length) params.append('species', species.join(','));
-      if (gender.length) params.append('gender', gender.join(','));
-      if (status.length) params.append('status', status.join(','));
+    // Проверка авторизации и роли
+    function checkAuth() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        document.getElementById('admin-actions').style.display = 'none';
+        loadAnimals(); // Загружаем животных для неавторизованных
+        return;
+      }
 
-      fetch(`/api/animals?${params.toString()}`, {
-        headers: {
-          'Authorization': `Bearer ${token || ''}`,
-        },
+      fetch('/api/users/profile', {
+        headers: { 'Authorization': `Bearer ${token}` }
       })
+        .then(response => {
+          if (!response.ok) throw new Error('Ошибка авторизации');
+          return response.json();
+        })
+        .then(data => {
+          localStorage.setItem('role', data.role); // Сохраняем роль
+          if (data.role === 'admin') {
+            document.getElementById('admin-actions').style.display = 'block';
+          }
+          loadAnimals(); // Загружаем животных
+        })
+        .catch(error => {
+          console.error('Ошибка проверки авторизации:', error);
+          localStorage.removeItem('token');
+          localStorage.removeItem('role');
+          updateAuthButtons();
+          loadAnimals();
+        });
+    }
+
+    // Загрузка списка животных
+    function loadAnimals() {
+      const name = document.getElementById('name-filter').value;
+      const species = document.getElementById('species-filter').value;
+      const gender = document.getElementById('gender-filter').value;
+      const status = document.getElementById('status-filter').value;
+
+      let query = '';
+      if (name) query += `name=${encodeURIComponent(name)}&`;
+      if (species) query += `species=${species}&`;
+      if (gender) query += `gender=${gender}&`;
+      if (status) query += `status=${status}&`;
+
+      fetch(`/api/animals?${query}`)
         .then(response => response.json())
         .then(animals => {
-          const animalsList = document.getElementById('animals-list');
-          animalsList.innerHTML = animals.map(animal => `
-            <div class="animal-item">
-              <h3>${animal.name.charAt(0).toUpperCase() + animal.name.slice(1)}</h3>
+          const animalList = document.getElementById('animal-list');
+          animalList.innerHTML = '';
+          animals.forEach(animal => {
+            const animalCard = document.createElement('div');
+            animalCard.className = 'animal-item';
+            animalCard.innerHTML = `
+              <h3>${animal.name}</h3>
               <p>Вид: ${animal.species === 'cat' ? 'Кошка' : 'Собака'}</p>
               <p>Пол: ${animal.gender === 'male' ? 'Мужской' : 'Женский'}</p>
               <p>Статус: ${animal.status}</p>
-              <p>Описание: ${animal.description || 'Нет описания'}</p>
-              ${animal.image ? `<img src="${animal.image}" alt="${animal.name}" style="max-width: 200px;">` : ''}
-              <div class="admin-buttons" style="display: ${userRole === 'admin' ? 'block' : 'none'};">
-                <button onclick="editAnimal(${animal.id})">Редактировать</button>
-                <button onclick="deleteAnimal(${animal.id})">Удалить</button>
+              <p>${animal.description}</p>
+              ${animal.image ? `<img src="${animal.image}" alt="${animal.name}">` : ''}
+              <div class="animal-actions" ${localStorage.getItem('role') !== 'admin' ? 'style="display: none;"' : ''}>
+                <button onclick="openEditAnimalModal(${animal.id})">Редактировать</button>
+                <button onclick="openDeleteAnimalModal(${animal.id}, '${animal.name}')">Удалить</button>
               </div>
-            </div>
-          `).join('');
-        })
-        .catch(err => console.error('Ошибка загрузки животных:', err));
-    }
-
-    function clearFilters() {
-      document.getElementById('name-filter').value = '';
-      document.getElementById('species-filter').selectedIndex = 0;
-      document.getElementById('gender-filter').selectedIndex = 0;
-      document.getElementById('status-filter').selectedIndex = 0;
-      loadAnimals();
-    }
-
-    function editAnimal(id) {
-      window.location.href = `/pages/edit-animal.html?id=${id}`;
-    }
-
-    async function deleteAnimal(id) {
-      if (confirm('Вы уверены, что хотите удалить это животное?')) {
-        const token = localStorage.getItem('token');
-        try {
-          const response = await fetch(`/api/animals/${id}`, {
-            method: 'DELETE',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
+            `;
+            animalList.appendChild(animalCard);
           });
-          const data = await response.json();
-          if (response.ok) {
-            alert('Животное удалено!');
+        })
+        .catch(error => console.error('Ошибка загрузки животных:', error));
+    }
+
+    // Модальные окна
+    const addAnimalModal = document.getElementById('add-animal-modal');
+    const editAnimalModal = document.getElementById('edit-animal-modal');
+    const deleteAnimalModal = document.getElementById('delete-animal-modal');
+
+    function openModal(modal) {
+      modal.classList.add('active');
+    }
+
+    function closeModal(modal) {
+      modal.classList.remove('active');
+    }
+
+    document.querySelectorAll('.modal-close').forEach(closeBtn => {
+      closeBtn.addEventListener('click', () => {
+        closeModal(closeBtn.closest('.modal'));
+      });
+    });
+
+    document.getElementById('open-add-animal-modal').addEventListener('click', () => {
+      openModal(addAnimalModal);
+    });
+
+    // Добавление животного
+    document.getElementById('add-animal-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const formData = new FormData();
+      formData.append('name', document.getElementById('add-animal-name').value);
+      formData.append('description', document.getElementById('add-animal-description').value);
+      formData.append('species', document.getElementById('add-animal-species').value);
+      formData.append('gender', document.getElementById('add-animal-gender').value);
+      formData.append('status', document.getElementById('add-animal-status').value);
+      const imageFile = document.getElementById('add-animal-image').files[0];
+      if (imageFile) formData.append('image', imageFile);
+
+      fetch('/api/animals', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+        body: formData
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.message === 'Животное добавлено') {
+            closeModal(addAnimalModal);
+            document.getElementById('add-animal-form').reset();
             loadAnimals();
           } else {
-            alert(data.message || 'Ошибка удаления животного');
+            alert(data.message);
           }
-        } catch (err) {
-          console.error('Ошибка:', err);
-          alert('Произошла ошибка. Попробуйте снова.');
-        }
-      }
-    }
-
-    window.onload = () => {
-      if (!userRole && localStorage.getItem('token')) {
-        fetch('/api/users/profile', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
         })
-          .then(response => response.json())
-          .then(user => {
-            userRole = user.role;
-            if (userRole === 'admin') {
-              document.getElementById('admin-actions').style.display = 'block';
-            }
-            loadAnimals();
-          })
-          .catch(err => console.error('Ошибка проверки роли:', err));
-      } else {
-        loadAnimals();
-      }
+        .catch(error => alert('Ошибка добавления животного: ' + error.message));
+    });
+
+    // Открытие модального окна редактирования
+    window.openEditAnimalModal = function(id) {
+      fetch(`/api/animals/${id}`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      })
+        .then(response => response.json())
+        .then(animal => {
+          document.getElementById('edit-animal-id').value = animal.id;
+          document.getElementById('edit-animal-name').value = animal.name;
+          document.getElementById('edit-animal-description').value = animal.description;
+          document.getElementById('edit-animal-species').value = animal.species;
+          document.getElementById('edit-animal-gender').value = animal.gender;
+          document.getElementById('edit-animal-status').value = animal.status;
+          document.getElementById('edit-animal-current-image').textContent = animal.image ? animal.image : 'Нет изображения';
+          openModal(editAnimalModal);
+        })
+        .catch(error => alert('Ошибка загрузки данных животного: ' + error.message));
     };
+
+    // Редактирование животного
+    document.getElementById('edit-animal-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const id = document.getElementById('edit-animal-id').value;
+      const formData = new FormData();
+      formData.append('name', document.getElementById('edit-animal-name').value);
+      formData.append('description', document.getElementById('edit-animal-description').value);
+      formData.append('species', document.getElementById('edit-animal-species').value);
+      formData.append('gender', document.getElementById('edit-animal-gender').value);
+      formData.append('status', document.getElementById('edit-animal-status').value);
+      const imageFile = document.getElementById('edit-animal-image').files[0];
+      if (imageFile) formData.append('image', imageFile);
+
+      fetch(`/api/animals/${id}`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+        body: formData
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.message === 'Животное обновлено') {
+            closeModal(editAnimalModal);
+            loadAnimals();
+          } else {
+            alert(data.message);
+          }
+        })
+        .catch(error => alert('Ошибка редактирования животного: ' + error.message));
+    });
+
+    // Открытие модального окна удаления
+    window.openDeleteAnimalModal = function(id, name) {
+      document.getElementById('delete-animal-id').value = id;
+      document.getElementById('delete-animal-name').textContent = name;
+      openModal(deleteAnimalModal);
+    };
+
+    // Удаление животного
+    document.getElementById('confirm-delete-animal').addEventListener('click', () => {
+      const id = document.getElementById('delete-animal-id').value;
+      fetch(`/api/animals/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.message === 'Животное удалено') {
+            closeModal(deleteAnimalModal);
+            loadAnimals();
+          } else {
+            alert(data.message);
+          }
+        })
+        .catch(error => alert('Ошибка удаления животного: ' + error.message));
+    });
+
+    document.querySelectorAll('.cancel-button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        closeModal(btn.closest('.modal'));
+      });
+    });
+
+    // Фильтры
+    document.getElementById('name-filter').addEventListener('input', loadAnimals);
+    document.getElementById('species-filter').addEventListener('change', loadAnimals);
+    document.getElementById('gender-filter').addEventListener('change', loadAnimals);
+    document.getElementById('status-filter').addEventListener('change', loadAnimals);
+    document.getElementById('reset-filters').addEventListener('click', () => {
+      document.getElementById('name-filter').value = '';
+      document.getElementById('species-filter').value = '';
+      document.getElementById('gender-filter').value = '';
+      document.getElementById('status-filter').value = '';
+      loadAnimals();
+    });
+
+    // Инициализация
+    checkAuth();
   </script>
 </body>
 </html>
