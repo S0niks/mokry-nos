@@ -1,5 +1,5 @@
 const db = require('../config/db');
-const multer = require('multer'); // Импорт multer
+const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
@@ -30,7 +30,7 @@ const upload = multer({
       cb(new Error('Только изображения (jpeg, jpg, png) и видео (mp4) разрешены!'));
     }
   },
-}).single('media'); // Определяем upload здесь
+}).single('media');
 
 const getAllNews = (req, res) => {
   db.all(`SELECT * FROM news ORDER BY created_at DESC`, [], (err, rows) => {
@@ -41,15 +41,29 @@ const getAllNews = (req, res) => {
   });
 };
 
+const getNewsById = (req, res) => {
+  const { id } = req.params;
+  db.get(`SELECT * FROM news WHERE id = ?`, [id], (err, row) => {
+    if (err) {
+      console.error('Ошибка базы данных:', err);
+      return res.status(500).json({ message: 'Ошибка сервера' });
+    }
+    if (!row) {
+      return res.status(404).json({ message: 'Новость не найдена' });
+    }
+    res.json(row);
+  });
+};
+
 const addNews = (req, res) => {
   upload(req, res, (err) => {
-    console.log('Multer error:', err); // Отладка ошибки загрузки
+    console.log('Multer error:', err);
     if (err) {
       return res.status(400).json({ message: err.message || 'Ошибка загрузки файла' });
     }
 
-    const { text } = req.body; // Извлекаем text из req.body
-    console.log('Полученные данные:', { text, file: req.file }); // Отладка данных
+    const { text } = req.body;
+    console.log('Полученные данные:', { text, file: req.file });
 
     if (!text) {
       return res.status(400).json({ message: 'Текст новости обязателен' });
@@ -61,7 +75,7 @@ const addNews = (req, res) => {
       `INSERT INTO news (text, media, created_at) VALUES (?, ?, ?)`,
       [text, media, created_at],
       function (err) {
-        console.log('SQL error:', err); // Отладка ошибки базы данных
+        console.log('SQL error:', err);
         if (err) {
           console.error('Ошибка при вставке в базу:', err);
           return res.status(400).json({ message: 'Ошибка добавления новости', error: err.message });
@@ -156,4 +170,4 @@ const deleteNews = (req, res) => {
   });
 };
 
-module.exports = { getAllNews, addNews, updateNews, deleteNews };
+module.exports = { getAllNews, getNewsById, addNews, updateNews, deleteNews };

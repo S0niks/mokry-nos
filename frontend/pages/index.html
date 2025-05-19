@@ -24,7 +24,7 @@
       .then(response => response.text())
       .then(data => { 
         document.getElementById('navbar').innerHTML = data;
-      // Добавляем логику отображения кнопок
+        // Добавляем логику отображения кнопок
         const token = localStorage.getItem('token');
         const authButtons = document.getElementById('auth-buttons');
         if (token) {
@@ -79,7 +79,7 @@
                 <p class="news-meta">Добавлено: ${new Date(item.created_at).toLocaleString('ru-RU')}</p>
                 ${token && userRole === 'admin' ? `
                   <div class="news-actions">
-                    <button onclick="editNews(${item.id}, '${item.text}', '${item.media || ''}')">Редактировать</button>
+                    <button onclick="editNews(${item.id})">Редактировать</button>
                     <button onclick="deleteNews(${item.id})">Удалить</button>
                   </div>
                 ` : ''}
@@ -101,52 +101,9 @@
       window.location.href = '/pages/add-news.html';
     });
   
-    window.editNews = function(id, text, media) {
-      const newText = prompt('Введите новый текст новости:', text);
-      const mediaPrompt = confirm('Хотите загрузить новое медиа?');
-      let newMedia = null;
-  
-      if (newText) {
-        const formData = new FormData();
-        formData.append('text', newText);
-  
-        if (mediaPrompt) {
-          const input = document.createElement('input');
-          input.type = 'file';
-          input.accept = 'image/jpeg,image/jpg,image/png,video/mp4';
-          input.onchange = (e) => {
-            const file = e.target.files[0];
-            if (file) {
-              formData.append('media', file);
-            }
-            sendEditRequest(id, formData);
-          };
-          input.click();
-        } else {
-          formData.append('media', media);
-          sendEditRequest(id, formData);
-        }
-      }
+    window.editNews = function(id) {
+      window.location.href = `/pages/edit-news.html?id=${id}`;
     };
-  
-    function sendEditRequest(id, formData) {
-      fetch(`/api/news/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-        body: formData,
-      })
-        .then(response => response.json())
-        .then(data => {
-          alert(data.message);
-          window.location.reload();
-        })
-        .catch(err => {
-          console.error('Ошибка редактирования:', err);
-          alert('Ошибка редактирования новости');
-        });
-    }
   
     window.deleteNews = function(id) {
       if (confirm('Вы уверены, что хотите удалить эту новость?')) {
