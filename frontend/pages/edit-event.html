@@ -3,16 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Добавить мероприятие - Мокрый нос</title>
+  <title>Редактировать мероприятие - Мокрый нос</title>
   <link rel="stylesheet" href="/assets/css/styles.css">
 </head>
 <body>
   <div id="navbar"></div>
 
-  <h1>Добавить мероприятие</h1>
+  <h1>Редактировать мероприятие</h1>
 
   <div id="unauthorized" style="display: none;">
-    <p>Доступ запрещен. Только администраторы могут добавлять мероприятия.</p>
+    <p>Доступ запрещен. Только администраторы могут редактировать мероприятия.</p>
+    <a href="/pages/index.html" class="button">Вернуться на главную</a>
+  </div>
+
+  <div id="not-found" style="display: none;">
+    <p>Мероприятие не найдено.</p>
     <a href="/pages/index.html" class="button">Вернуться на главную</a>
   </div>
 
@@ -25,7 +30,7 @@
     <input type="date" id="event_date" name="event_date" required>
     <label for="media">Медиа (изображение или видео):</label>
     <input type="file" id="media" name="media" accept="image/*,video/mp4">
-    <button type="submit">Добавить</button>
+    <button type="submit">Сохранить</button>
   </form>
 
   <script>
@@ -41,7 +46,7 @@
         if (token) {
           authButtons.innerHTML = `<a href="/pages/profile.html">Профиль</a>`;
         } else {
-          authButtons.innerHTML = `<a href="/pages/login.html">Вход</ gewehr>`;
+          authButtons.innerHTML = `<a href="/pages/login.html">Вход</a>`;
         }
       })
       .catch(err => {
@@ -52,7 +57,10 @@
     document.addEventListener('DOMContentLoaded', () => {
       const token = localStorage.getItem('token');
       const unauthorizedDiv = document.getElementById('unauthorized');
+      const notFoundDiv = document.getElementById('not-found');
       const eventForm = document.getElementById('event-form');
+      const urlParams = new URLSearchParams(window.location.search);
+      const eventId = urlParams.get('id');
 
       if (!token) {
         unauthorizedDiv.style.display = 'block';
@@ -70,7 +78,23 @@
           if (user.role !== 'admin') {
             unauthorizedDiv.style.display = 'block';
           } else {
-            eventForm.style.display = 'block';
+            fetch(`/api/events/${eventId}`, {
+              headers: { 'Authorization': `Bearer ${token}` }
+            })
+              .then(response => {
+                if (!response.ok) throw new Error('Мероприятие не найдено');
+                return response.json();
+              })
+              .then(event => {
+                eventForm.style.display = 'block';
+                document.getElementById('title').value = event.title;
+                document.getElementById('description').value = event.description;
+                document.getElementById('event_date').value = event.event_date.split('T')[0];
+              })
+              .catch(error => {
+                console.error('Ошибка:', error);
+                notFoundDiv.style.display = 'block';
+              });
           }
         })
         .catch(error => {
@@ -82,24 +106,24 @@
         e.preventDefault();
         const formData = new FormData(eventForm);
 
-        fetch('/api/events', {
-          method: 'POST',
+        fetch(`/api/events/${eventId}`, {
+          method: 'PUT',
           headers: { 'Authorization': `Bearer ${token}` },
           body: formData
         })
           .then(response => {
-            if (!response.ok) throw new Error('Ошибка добавления мероприятия');
+            if (!response.ok) throw new Error('Ошибка обновления мероприятия');
             return response.json();
           })
           .then(data => {
-            alert('Мероприятие добавлено');
+            alert(data.message);
             window.location.href = '/pages/events.html';
           })
           .catch(error => {
             console.error('Ошибка:', error);
-            alert('Не удалось добавить мероприятие');
+            alert('Не удалось обновить мероприятие');
           });
-        });
+      });
     });
   </script>
 </body>

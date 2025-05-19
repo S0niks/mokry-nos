@@ -154,3 +154,30 @@ form textarea {
 #avatar-img {
   border-radius: 50%;
 }
+
+.event-card {
+  border: 1px solid #ccc;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 5px;
+  max-width: 500px;
+  text-align: left;
+}
+
+.event-card img, .event-card video {
+  max-width: 100%;
+  margin: 10px 0;
+}
+
+.event-actions {
+  margin-top: 10px;
+}
+
+.event-actions button {
+  background-color: #666;
+  margin-right: 10px;
+}
+
+.event-actions button:hover {
+  background-color: #555;
+}

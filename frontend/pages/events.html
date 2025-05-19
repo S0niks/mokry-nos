@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Мероприятия - Мокрый нос</title>
+  <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <h1>Мероприятия</h1>
+
+  <div id="unauthorized-message" style="display: none;">
+    <p>Зарегистрируйтесь или войдите в профиль, чтобы использовать все возможности сайта</p>
+    <button onclick="window.location.href='/pages/register.html'">Зарегистрироваться</button>
+  </div>
+
+  <div id="authorized-content" style="display: none;">
+    <div id="admin-event-controls" style="display: none;">
+      <button id="add-event-button">Добавить мероприятие</button>
+    </div>
+    <div id="event-list"></div>
+  </div>
+
+  <script>
+    // Загрузка навигации
+    fetch('/components/navbar.html')
+      .then(response => {
+        if (!response.ok) throw new Error('Не удалось загрузить навигацию');
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById('navbar').innerHTML = data;
+        const token = localStorage.getItem('token');
+        const authButtons = document.getElementById('auth-buttons');
+        if (token) {
+          authButtons.innerHTML = `<a href="/pages/profile.html">Профиль</a>`;
+        } else {
+          authButtons.innerHTML = `<a href="/pages/login.html">Вход</a>`;
+        }
+      })
+      .catch(err => {
+        console.error('Ошибка загрузки навигации:', err);
+        document.getElementById('navbar').innerHTML = '<p>Ошибка загрузки навигации</p>';
+      });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const token = localStorage.getItem('token');
+      const unauthorizedMessage = document.getElementById('unauthorized-message');
+      const authorizedContent = document.getElementById('authorized-content');
+      let userRole = null;
+
+      if (!token) {
+        unauthorizedMessage.style.display = 'block';
+        return;
+      }
+
+      authorizedContent.style.display = 'block';
+
+      // Проверка роли пользователя
+      fetch('/api/users/profile', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(response => {
+          if (response.status === 401) {
+            localStorage.removeItem('token');
+            window.location.href = '/pages/login.html';
+            throw new Error('Требуется повторный вход');
+          }
+          if (!response.ok) throw new Error('Не удалось загрузить профиль');
+          return response.json();
+        })
+        .then(data => {
+          userRole = data.role;
+          if (userRole === 'admin') {
+            document.getElementById('admin-event-controls').style.display = 'block';
+          }
+          loadEvents();
+        })
+        .catch(err => {
+          console.error('Ошибка загрузки профиля:', err);
+          loadEvents();
+        });
+
+      // Загрузка мероприятий
+      function loadEvents() {
+        fetch('/api/events')
+          .then(response => response.json())
+          .then(events => {
+            const eventList = document.getElementById('event-list');
+            if (events.length === 0) {
+              eventList.innerHTML = '<p>Мероприятий пока нет.</p>';
+            } else {
+              eventList.innerHTML = events.map(event => {
+                return `
+                  <div class="event-card">
+                    <h3>${event.title}</h3>
+                    <p>${event.description}</p>
+                    <p>Дата: ${new Date(event.event_date).toLocaleDateString('ru-RU')}</p>
+                    ${event.media ? (event.media.endsWith('.mp4') ?
+                      `<video src="${event.media}" controls style="max-width: 100%;"></video>` :
+                      `<img src="${event.media}" alt="${event.title}" style="max-width: 100%;" onerror="this.style.display='none';">`) : ''}
+                    ${token && userRole !== 'admin' ? `
+                      <button onclick="toggleLike(${event.id})">${event.liked ? 'Убрать из избранного' : 'Добавить в избранное'}</button>
+                    ` : ''}
+                    ${userRole === 'admin' ? `
+                      <div class="event-actions">
+                        <button onclick="editEvent(${event.id})">Редактировать</button>
+                        <button onclick="deleteEvent(${event.id})">Удалить</button>
+                      </div>
+                    ` : ''}
+                  </div>
+                `;
+              }).join('');
+            }
+          })
+          .catch(err => {
+            console.error('Ошибка загрузки мероприятий:', err);
+            document.getElementById('event-list').innerHTML = '<p>Ошибка загрузки мероприятий.</p>';
+          });
+      }
+
+      // Добавление мероприятия
+      document.getElementById('add-event-button')?.addEventListener('click', () => {
+        window.location.href = '/pages/add-event.html';
+      });
+
+      // Лайк/удаление лайка
+      window.toggleLike = function(eventId) {
+        fetch(`/api/events/${eventId}/like`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+          .then(response => {
+            if (response.status === 401) {
+              localStorage.removeItem('token');
+              window.location.href = '/pages/login.html';
+              throw new Error('Требуется повторный вход');
+            }
+            if (!response.ok) throw new Error('Ошибка изменения лайка');
+            return response.json();
+          })
+          .then(data => {
+            alert(data.message);
+            window.location.reload();
+          })
+          .catch(err => {
+            console.error('Ошибка:', err);
+            alert('Не удалось изменить лайк');
+          });
+      };
+
+      // Редактирование мероприятия
+      window.editEvent = function(eventId) {
+        window.location.href = `/pages/edit-event.html?id=${eventId}`;
+      };
+
+      // Удаление мероприятия
+      window.deleteEvent = function(eventId) {
+        if (confirm('Вы уверены, что хотите удалить это мероприятие?')) {
+          fetch(`/api/events/${eventId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
+            .then(response => {
+              if (response.status === 401) {
+                localStorage.removeItem('token');
+                window.location.href = '/pages/login.html';
+                throw new Error('Требуется повторный вход');
+              }
+              if (!response.ok) throw new Error('Ошибка удаления');
+              return response.json();
+            })
+            .then(data => {
+              alert(data.message);
+              window.location.reload();
+            })
+            .catch(err => {
+              console.error('Ошибка:', err);
+              alert('Ошибка удаления мероприятия');
+            });
+        }
+      };
+    });
+  </script>
+</body>
+</html>

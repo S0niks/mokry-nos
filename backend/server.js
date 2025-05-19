@@ -15,9 +15,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.static(path.join(__dirname, '../frontend'), { index: false }));
-app.use('/images', express.static(path.join(__dirname, '../frontend/images')));
-
 app.use((req, res, next) => {
   const originalSend = res.send;
   res.send = function (body) {
@@ -27,12 +24,21 @@ app.use((req, res, next) => {
   next();
 });
 
+// Подключение маршрутов
+console.log('Подключение маршрутов...');
 const userRoutes = require('./routes/userRoutes');
 const animalRoutes = require('./routes/animalRoutes');
 const newsRoutes = require('./routes/newsRoutes');
+const eventRoutes = require('./routes/eventRoutes');
+
 app.use('/api/users', userRoutes);
 app.use('/api/animals', animalRoutes);
 app.use('/api/news', newsRoutes);
+app.use('/api/events', eventRoutes);
+
+// Статические файлы после API-маршрутов
+app.use(express.static(path.join(__dirname, '../frontend'), { index: false }));
+app.use('/images', express.static(path.join(__dirname, '../frontend/images')));
 
 app.get('/', (req, res) => {
   console.log('Обработка запроса на /');

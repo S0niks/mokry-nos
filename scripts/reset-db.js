@@ -16,6 +16,15 @@ async function resetDB() {
     if (err) console.error('Ошибка удаления таблицы news:', err);
     else console.log('Таблица news удалена');
   });
+  // Удаляем таблицы events и user_events, если они существуют
+  db.run(`DROP TABLE IF EXISTS events`, (err) => {
+    if (err) console.error('Ошибка удаления таблицы events:', err);
+    else console.log('Таблица events удалена');
+  });
+  db.run(`DROP TABLE IF EXISTS user_events`, (err) => {
+    if (err) console.error('Ошибка удаления таблицы user_events:', err);
+    else console.log('Таблица user_events удалена');
+  });
 
   db.serialize(() => {
     db.run(`
@@ -49,6 +58,30 @@ async function resetDB() {
         updated_at TEXT
       )
     `);
+    // Таблица events (новая)
+  db.run(`
+    CREATE TABLE IF NOT EXISTS events (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      description TEXT NOT NULL,
+      event_date TEXT NOT NULL,
+      media TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT
+    )
+  `);
+
+  // Таблица user_events (для "лайков" мероприятий)
+  db.run(`
+    CREATE TABLE IF NOT EXISTS user_events (
+      user_id INTEGER,
+      event_id INTEGER,
+      created_at TEXT NOT NULL,
+      PRIMARY KEY (user_id, event_id),
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
+    )
+  `);
   });
 
   const hashedPassword = await bcrypt.hash('admin123', 10);
@@ -70,15 +103,6 @@ async function resetDB() {
       else console.log('Пользователь volunteer добавлен');
     }
   );
-
-  /* db.run(
-    `INSERT INTO animals (name, species, gender, description, status, image) VALUES (?, ?, ?, ?, ?, ?)`,
-    ['Барсик', 'cat', 'male', 'Добрый кот', 'в поиске семьи', '/images/barsik.jpg'],
-    (err) => {
-      if (err) console.error('Ошибка добавления животного:', err);
-      else console.log('Животное добавлено');
-    }
-  );*/
 
   db.close();
 }
