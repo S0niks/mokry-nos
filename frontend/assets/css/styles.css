@@ -330,3 +330,33 @@ form textarea {
 .unlike-button:hover {
   background-color: #555;
 }
+
+#event-filters {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#event-filters label {
+  font-weight: bold;
+  color: #333;
+}
+
+#event-filters select {
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background-color: white;
+  cursor: pointer;
+}
+
+#event-filters select:focus {
+  outline: none;
+  border-color: #ff6200;
+}

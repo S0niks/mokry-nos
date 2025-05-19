@@ -19,7 +19,13 @@
   <div id="authorized-content" style="display: none;">
     <div id="admin-event-controls" style="display: none;">
       <button id="add-event-button">Добавить мероприятие</button>
-      <button id="unfreeze-button" style="background-color: #ff0000;">Разморозить страницу</button>
+    </div>
+    <div id="event-filters">
+      <label for="sort-event-date">Сортировка по дате проведения:</label>
+      <select id="sort-event-date">
+        <option value="newest" selected>Сначала новые</option>
+        <option value="oldest">Сначала старые</option>
+      </select>
     </div>
     <div id="event-list"></div>
   </div>
@@ -54,6 +60,7 @@
         <input type="text" id="edit-title" name="title" required>
         <label for="edit-description">Описание:</label>
         <textarea id="edit-description" name="description" required></textarea>
+ callers: []
         <label for="edit-event-date">Дата мероприятия:</label>
         <input type="date" id="edit-event-date" name="event_date" required>
         <label for="edit-media">Медиа (изображение или видео):</label>
@@ -148,7 +155,7 @@
             throw new Error('Требуется повторный вход');
           }
           if (!eventsResponse.ok) throw new Error('Ошибка загрузки мероприятий');
-          const events = await eventsResponse.json();
+          let events = await eventsResponse.json();
 
           let likedEventIds = [];
           if (userRole !== 'admin') {
@@ -164,6 +171,20 @@
             const likedEvents = await likedEventsResponse.json();
             likedEventIds = likedEvents.map(event => event.id);
           }
+
+          // Получение значения фильтра по дате проведения
+          const sortEventDate = document.getElementById('sort-event-date').value;
+
+          // Сортировка мероприятий по дате проведения
+          events = events.sort((a, b) => {
+            const dateA = new Date(a.event_date);
+            const dateB = new Date(b.event_date);
+            if (sortEventDate === 'newest') {
+              return dateB - dateA;
+            } else {
+              return dateA - dateB;
+            }
+          });
 
           const eventList = document.getElementById('event-list');
           if (events.length === 0) {
@@ -198,6 +219,9 @@
           document.getElementById('event-list').innerHTML = '<p>Ошибка загрузки мероприятий.</p>';
         }
       }
+
+      // Обработчик изменения фильтра
+      document.getElementById('sort-event-date').addEventListener('change', loadEvents);
 
       // Функции для управления модальными окнами
       let activeModal = null;
@@ -235,19 +259,6 @@
           console.error(`Модальное окно с ID ${modalId} не найдено`);
         }
       }
-
-      // Временная кнопка для разморозки
-      document.getElementById('unfreeze-button')?.addEventListener('click', () => {
-        console.log('Разморозка страницы');
-        document.querySelectorAll('.modal').forEach(modal => {
-          modal.classList.remove('active');
-          modal.style.display = 'none';
-          modal.style.visibility = 'hidden';
-          modal.style.opacity = '0';
-        });
-        document.body.style.overflow = '';
-        activeModal = null;
-      });
 
       // Открытие модального окна для добавления
       document.getElementById('add-event-button')?.addEventListener('click', () => {
