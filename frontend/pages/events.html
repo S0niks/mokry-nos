@@ -84,41 +84,69 @@
         });
 
       // Загрузка мероприятий
-      function loadEvents() {
-        fetch('/api/events')
-          .then(response => response.json())
-          .then(events => {
-            const eventList = document.getElementById('event-list');
-            if (events.length === 0) {
-              eventList.innerHTML = '<p>Мероприятий пока нет.</p>';
-            } else {
-              eventList.innerHTML = events.map(event => {
-                return `
-                  <div class="event-card">
-                    <h3>${event.title}</h3>
-                    <p>${event.description}</p>
-                    <p>Дата: ${new Date(event.event_date).toLocaleDateString('ru-RU')}</p>
-                    ${event.media ? (event.media.endsWith('.mp4') ?
-                      `<video src="${event.media}" controls style="max-width: 100%;"></video>` :
-                      `<img src="${event.media}" alt="${event.title}" style="max-width: 100%;" onerror="this.style.display='none';">`) : ''}
-                    ${token && userRole !== 'admin' ? `
-                      <button onclick="toggleLike(${event.id})">${event.liked ? 'Убрать из избранного' : 'Добавить в избранное'}</button>
-                    ` : ''}
-                    ${userRole === 'admin' ? `
-                      <div class="event-actions">
-                        <button onclick="editEvent(${event.id})">Редактировать</button>
-                        <button onclick="deleteEvent(${event.id})">Удалить</button>
-                      </div>
-                    ` : ''}
-                  </div>
-                `;
-              }).join('');
-            }
-          })
-          .catch(err => {
-            console.error('Ошибка загрузки мероприятий:', err);
-            document.getElementById('event-list').innerHTML = '<p>Ошибка загрузки мероприятий.</p>';
+      async function loadEvents() {
+        try {
+          // Загрузка всех мероприятий
+          const eventsResponse = await fetch('/api/events', {
+            headers: { 'Authorization': `Bearer ${token}` }
           });
+          if (eventsResponse.status === 401) {
+            localStorage.removeItem('token');
+            window.location.href = '/pages/login.html';
+            throw new Error('Требуется повторный вход');
+          }
+          if (!eventsResponse.ok) throw new Error('Ошибка загрузки мероприятий');
+          const events = await eventsResponse.json();
+
+          // Загрузка лайкнутых мероприятий (только для волонтеров)
+          let likedEventIds = [];
+          if (userRole !== 'admin') {
+            const likedEventsResponse = await fetch('/api/events/user', {
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (likedEventsResponse.status === 401) {
+              localStorage.removeItem('token');
+              window.location.href = '/pages/login.html';
+              throw new Error('Требуется повторный вход');
+            }
+            if (!likedEventsResponse.ok) throw new Error('Ошибка загрузки лайкнутых мероприятий');
+            const likedEvents = await likedEventsResponse.json();
+            likedEventIds = likedEvents.map(event => event.id);
+          }
+
+          // Отрисовка мероприятий
+          const eventList = document.getElementById('event-list');
+          if (events.length === 0) {
+            eventList.innerHTML = '<p>Мероприятий пока нет.</p>';
+          } else {
+            eventList.innerHTML = events.map(event => {
+              const isLiked = likedEventIds.includes(event.id);
+              return `
+                <div class="event-card">
+                  <h3>${event.title}</h3>
+                  <p>${event.description}</p>
+                  <p>Дата: ${new Date(event.event_date).toLocaleDateString('ru-RU')}</p>
+                  ${event.media ? (event.media.endsWith('.mp4') ?
+                    `<video src="${event.media}" controls style="max-width: 100%;"></video>` :
+                    `<img src="${event.media}" alt="${event.title}" style="max-width: 100%;" onerror="this.style.display='none';">`) : ''}
+                  ${token && userRole !== 'admin' ? `
+                    <button class="like-button" onclick="likeEvent(${event.id})" style="display: ${isLiked ? 'none' : 'inline-block'};">Лайк</button>
+                    <button class="unlike-button" onclick="unlikeEvent(${event.id})" style="display: ${isLiked ? 'inline-block' : 'none'};">Убрать лайк</button>
+                  ` : ''}
+                  ${userRole === 'admin' ? `
+                    <div class="event-actions">
+                      <button onclick="editEvent(${event.id})">Редактировать</button>
+                      <button onclick="deleteEvent(${event.id})">Удалить</button>
+                    </div>
+                  ` : ''}
+                </div>
+              `;
+            }).join('');
+          }
+        } catch (err) {
+          console.error('Ошибка загрузки мероприятий:', err);
+          document.getElementById('event-list').innerHTML = '<p>Ошибка загрузки мероприятий.</p>';
+        }
       }
 
       // Добавление мероприятия
@@ -126,29 +154,54 @@
         window.location.href = '/pages/add-event.html';
       });
 
-      // Лайк/удаление лайка
-      window.toggleLike = function(eventId) {
-        fetch(`/api/events/${eventId}/like`, {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
-          .then(response => {
-            if (response.status === 401) {
-              localStorage.removeItem('token');
-              window.location.href = '/pages/login.html';
-              throw new Error('Требуется повторный вход');
+      // Добавление лайка
+      window.likeEvent = async function(eventId) {
+        try {
+          const response = await fetch(`/api/events/${eventId}/like`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
             }
-            if (!response.ok) throw new Error('Ошибка изменения лайка');
-            return response.json();
-          })
-          .then(data => {
-            alert(data.message);
-            window.location.reload();
-          })
-          .catch(err => {
-            console.error('Ошибка:', err);
-            alert('Не удалось изменить лайк');
           });
+          if (response.status === 401) {
+            localStorage.removeItem('token');
+            window.location.href = '/pages/login.html';
+            throw new Error('Требуется повторный вход');
+          }
+          if (!response.ok) throw new Error('Ошибка добавления лайка');
+          const data = await response.json();
+          alert(data.message); // Например, "Лайк добавлен"
+          loadEvents(); // Перезагрузка списка мероприятий
+        } catch (err) {
+          console.error('Ошибка:', err);
+          alert('Произошла ошибка при добавлении лайка');
+        }
+      };
+
+      // Удаление лайка
+      window.unlikeEvent = async function(eventId) {
+        try {
+          const response = await fetch(`/api/events/${eventId}/like`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          if (response.status === 401) {
+            localStorage.removeItem('token');
+            window.location.href = '/pages/login.html';
+            throw new Error('Требуется повторный вход');
+          }
+          if (!response.ok) throw new Error('Ошибка удаления лайка');
+          const data = await response.json();
+          alert(data.message); // Например, "Лайк удален"
+          loadEvents(); // Перезагрузка списка мероприятий
+        } catch (err) {
+          console.error('Ошибка:', err);
+          alert('Произошла ошибка при удалении лайка');
+        }
       };
 
       // Редактирование мероприятия
@@ -174,7 +227,7 @@
             })
             .then(data => {
               alert(data.message);
-              window.location.reload();
+              loadEvents(); // Перезагрузка списка мероприятий
             })
             .catch(err => {
               console.error('Ошибка:', err);

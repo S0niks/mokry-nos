@@ -58,6 +58,72 @@
         return;
       }
 
+      // Функция для загрузки мероприятий
+      const loadUserEvents = () => {
+        fetch('/api/events/user', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+          .then(response => {
+            if (response.status === 401) {
+              localStorage.removeItem('token');
+              window.location.href = '/pages/login.html';
+              throw new Error('Требуется повторный вход');
+            }
+            if (!response.ok) throw new Error('Ошибка загрузки мероприятий');
+            return response.json();
+          })
+          .then(events => {
+            userEventsList.innerHTML = '';
+            if (events.length === 0) {
+              userEventsList.innerHTML = '<p>Вы пока не выбрали ни одного мероприятия.</p>';
+            } else {
+              events.forEach(event => {
+                const eventCard = document.createElement('div');
+                eventCard.className = 'event-card';
+                eventCard.innerHTML = `
+                  <h3>${event.title}</h3>
+                  <p>${event.description}</p>
+                  <p>Дата: ${new Date(event.event_date).toLocaleDateString('ru-RU')}</p>
+                  ${event.media ? (event.media.endsWith('.mp4') ?
+                    `<video src="${event.media}" controls style="max-width: 100%;"></video>` :
+                    `<img src="${event.media}" alt="${event.title}" style="max-width: 100%;">`) : ''}
+                  <button onclick="unlikeEvent(${event.id})">Убрать лайк</button>
+                `;
+                userEventsList.appendChild(eventCard);
+              });
+            }
+          })
+          .catch(error => {
+            console.error('Ошибка:', error);
+            userEventsList.innerHTML = '<p>Не удалось загрузить мероприятия.</p>';
+          });
+      };
+
+      // Функция для удаления лайка
+      window.unlikeEvent = async (eventId) => {
+        try {
+          const response = await fetch(`/api/events/${eventId}/like`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          if (response.status === 401) {
+            localStorage.removeItem('token');
+            window.location.href = '/pages/login.html';
+            throw new Error('Требуется повторный вход');
+          }
+          if (!response.ok) throw new Error('Ошибка удаления лайка');
+          const data = await response.json();
+          alert(data.message); // Например, "Лайк удален"
+          loadUserEvents(); // Перезагрузка списка мероприятий
+        } catch (err) {
+          console.error('Ошибка:', err);
+          alert('Произошла ошибка при удалении лайка');
+        }
+      };
+
       // Загрузка данных профиля
       fetch('/api/users/profile', {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -87,41 +153,7 @@
           // Показать секцию мероприятий только для не-администраторов
           if (data.role !== 'admin') {
             userEventsSection.style.display = 'block';
-            fetch('/api/events/user', {
-              headers: { 'Authorization': `Bearer ${token}` }
-            })
-              .then(response => {
-                if (response.status === 401) {
-                  localStorage.removeItem('token');
-                  window.location.href = '/pages/login.html';
-                  throw new Error('Требуется повторный вход');
-                }
-                if (!response.ok) throw new Error('Ошибка загрузки мероприятий');
-                return response.json();
-              })
-              .then(events => {
-                if (events.length === 0) {
-                  userEventsList.innerHTML = '<p>Вы пока не выбрали ни одного мероприятия.</p>';
-                } else {
-                  events.forEach(event => {
-                    const eventCard = document.createElement('div');
-                    eventCard.className = 'event-card';
-                    eventCard.innerHTML = `
-                      <h3>${event.title}</h3>
-                      <p>${event.description}</p>
-                      <p>Дата: ${new Date(event.event_date).toLocaleDateString('ru-RU')}</p>
-                      ${event.media ? (event.media.endsWith('.mp4') ?
-                        `<video src="${event.media}" controls style="max-width: 100%;"></video>` :
-                        `<img src="${event.media}" alt="${event.title}" style="max-width: 100%;">`) : ''}
-                    `;
-                    userEventsList.appendChild(eventCard);
-                  });
-                }
-              })
-              .catch(error => {
-                console.error('Ошибка:', error);
-                userEventsList.innerHTML = '<p>Не удалось загрузить мероприятия.</p>';
-              });
+            loadUserEvents();
           }
 
           // Загрузка списка волонтеров для админа
