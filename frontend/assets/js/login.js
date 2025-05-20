@@ -1,0 +1,49 @@
+fetch('/components/navbar.html')
+      .then(response => response.text())
+      .then(data => { 
+        document.getElementById('navbar').innerHTML = data;
+      // Добавляем логику отображения кнопок
+        const token = localStorage.getItem('token');
+        const authButtons = document.getElementById('auth-buttons');
+        if (token) {
+          console.log('Пользователь авторизован, показываем Профиль');
+          authButtons.innerHTML = `<a href="/pages/profile.html">Профиль</a>`;
+        } else {
+          console.log('Пользователь не авторизован, показываем Вход');
+          authButtons.innerHTML = `<a href="/pages/login.html">Вход</a>`;
+        }
+      })
+      .catch(err => console.error('Ошибка загрузки навигации:', err));
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      console.log('Отправка запроса на вход:', { email, password });
+
+      try {
+        const response = await fetch('/api/users/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        });
+
+        console.log('Статус ответа:', response.status);
+        const data = await response.json();
+        console.log('Данные ответа:', data);
+
+        if (response.ok) {
+          console.log('Токен сохранен:', data.token);
+          localStorage.setItem('token', data.token);
+          window.location.href = '/pages/profile.html';
+        } else {
+          alert(data.message || 'Ошибка входа');
+        }
+      } catch (err) {
+        console.error('Ошибка при входе:', err);
+        alert('Произошла ошибка. Попробуйте снова.');
+      }
+    });
