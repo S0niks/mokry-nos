@@ -63,29 +63,98 @@
           if (news.length === 0) {
             newsList.innerHTML = '<p>Новостей пока нет.</p>';
           } else {
-            newsList.innerHTML = news.map(item => {
-              return `
-                <div class="news-item">
-                  <p>${item.text}</p>
-                  ${item.media ? (item.media.endsWith('.mp4') ?
-                    `<video src="${item.media}" controls style="max-width: 100%;"></video>` :
-                    `<img src="${item.media}" alt="Новость" style="max-width: 100%;" onerror="this.style.display='none';">`) : ''}
-                  <div class="news-meta">Опубликовано: ${new Date(item.created_at).toLocaleDateString('ru-RU')}</div>
-                  ${userRole === 'admin' ? `
-                    <div class="news-actions">
-                      <button onclick="openEditNewsModal(${item.id})">Редактировать</button>
-                      <button onclick="openDeleteNewsModal(${item.id}, '${item.text.replace(/'/g, "\\'").slice(0, 50)}')">Удалить</button>
-                    </div>
-                  ` : ''}
+           newsList.innerHTML = news.map((item, index) => {
+            let mediaHTML = '';
+
+            // Преобразуем поле media в массив
+            let mediaArray = [];
+            if (item.media) {
+              try {
+                const parsed = JSON.parse(item.media);
+                if (Array.isArray(parsed)) {
+                  mediaArray = parsed;
+                } else if (typeof parsed === 'string') {
+                  mediaArray = [parsed];
+                }
+              } catch (e) {
+                mediaArray = [item.media]; // обычная строка, не JSON
+              }
+            }
+
+
+            // Если одно изображение
+            if (mediaArray.length === 1) {
+              const media = mediaArray[0];
+              mediaHTML = media.endsWith('.mp4')
+                ? `<video src="${media}" controls style="max-width: 100%;"></video>`
+                : `<img src="${media}" alt="Новость" style="max-width: 100%;">`;
+            }
+
+            // Если несколько — слайдер
+            else if (mediaArray.length > 1) {
+              mediaHTML = `
+                <div class="swiper-container" id="swiper-${index}">
+                  <div class="swiper-wrapper">
+                    ${mediaArray.map(m =>
+                      `<div class="swiper-slide">
+                        ${m.endsWith('.mp4')
+                          ? `<video src="${m}" controls></video>`
+                          : `<img src="${m}" alt="Новость">`}
+                      </div>`
+                    ).join('')}
+                  </div>
+                  <div class="swiper-pagination"></div>
+                  <div class="swiper-button-prev"></div>
+                  <div class="swiper-button-next"></div>
                 </div>
               `;
-            }).join('');
+            }
+
+            return `
+              <div class="news-item">
+                <p>${item.text}</p>
+                ${mediaHTML}
+                <div class="news-meta">Опубликовано: ${new Date(item.created_at).toLocaleDateString('ru-RU')}</div>
+                ${userRole === 'admin' ? `
+                  <div class="news-actions">
+                    <button onclick="openEditNewsModal(${item.id})">Редактировать</button>
+                    <button onclick="openDeleteNewsModal(${item.id}, '${item.text.replace(/'/g, "\\'").slice(0, 50)}')">Удалить</button>
+                  </div>
+                ` : ''}
+              </div>
+            `;
+          }).join('');
+          // Инициализация Swiper после генерации HTML
+          document.querySelectorAll('.swiper-container').forEach(container => {
+            new Swiper(`#${container.id}`, {
+              loop: true,
+              navigation: {
+                nextEl: `#${container.id} .swiper-button-next`,
+                prevEl: `#${container.id} .swiper-button-prev`,
+              },
+              pagination: {
+                el: `#${container.id} .swiper-pagination`,
+                clickable: true,
+              },
+            });
+          });
           }
         } catch (err) {
           console.error('Ошибка загрузки новостей:', err);
           document.getElementById('news-list').innerHTML = '<p>Ошибка загрузки новостей.</p>';
         }
       }
+
+      // Анимация собаки при прокрутке
+      const dogImage = document.getElementById('dog-image');
+      if (dogImage) {
+        window.addEventListener('scroll', () => {
+          const scrollY = window.scrollY;
+          dogImage.style.transform = `translateX(${scrollY * 0.4}px)`;
+        });
+      }
+
+
 
       // Функции для управления модальными окнами
       let activeModal = null;

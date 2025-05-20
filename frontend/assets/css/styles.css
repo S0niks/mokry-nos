@@ -389,3 +389,35 @@ form textarea {
   outline: none;
   border-color: #ff6200;
 }
+
+.swiper-container {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  margin: 10px 0;
+}
+
+.swiper-slide img, .swiper-slide video {
+  width: 100%;
+  height: auto;
+  border-radius: 5px;
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+  margin-right: auto;
+}
+
+.logo-img {
+  height: 50px;
+}
+
+#dog-image {
+  position: absolute;
+  top: 150px;
+  right: 0;
+  z-index: 0;
+  transition: transform 0.2s ease-out;
+  max-width: 200px;
+}

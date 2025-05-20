@@ -30,7 +30,8 @@ const upload = multer({
       cb(new Error('Только изображения (jpeg, jpg, png) и видео (mp4) разрешены!'));
     }
   },
-}).single('media');
+}).array('media', 10); // до 10 файлов
+
 
 const getAllNews = (req, res) => {
   db.all(`SELECT * FROM news ORDER BY created_at DESC`, [], (err, rows) => {
@@ -69,7 +70,7 @@ const addNews = (req, res) => {
       return res.status(400).json({ message: 'Текст новости обязателен' });
     }
 
-    const media = req.file ? `/images/${req.file.filename}` : null;
+    const media = req.files.length > 0 ? JSON.stringify(req.files.map(f => `/images/${f.filename}`)) : null;
     const created_at = new Date().toISOString();
     db.run(
       `INSERT INTO news (text, media, created_at) VALUES (?, ?, ?)`,
