@@ -1,11 +1,23 @@
-<nav>
-  <a href="/pages/index.html" class="logo-link">
-  <img src="/assets/images/logo.png" alt="Мокрый нос" class="logo-img">
-  </a>
-  <a href="/pages/animals.html">Животные</a>
-  <a href="/pages/events.html">Мероприятия</a>
-  <a href="/pages/about.html">О нас</a>
-  <div id="auth-buttons">
-    <!-- Кнопки будут добавляться через JavaScript -->
+<nav class="navbar">
+  <div class="navbar-container">
+    <a href="/pages/index.html" class="logo-link">
+      <img src="/assets/images/logo.png" alt="Мокрый нос" class="logo-img">
+    </a>
+
+    <div class="nav-center">
+      <a href="/pages/animals.html">Животные</a>
+      <a href="/pages/events.html">Мероприятия</a>
+      <a href="/pages/about.html">О нас</a>
+    </div>
+
+    <div class="auth-zone" id="auth-buttons">
+      <!-- вход/профиль добавляется через JS -->
+    </div>
   </div>
 </nav>
+
+<script>
+  document.querySelector('.menu-toggle').addEventListener('click', () => {
+    document.getElementById('nav-menu').classList.toggle('active');
+  });
+</script>

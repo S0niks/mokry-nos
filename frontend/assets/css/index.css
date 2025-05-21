@@ -1,0 +1,168 @@
+
+.hero-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  padding: 40px 20px 60px;
+  background-color: #E7F5F7;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-text {
+  max-width: 700px;
+  text-align: center;
+  margin: 0 auto;
+  z-index: 2;
+}
+
+.hero-text h1 {
+  font-size: 26px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.hero-text p {
+  font-size: 18px;
+  color: #444;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.hero-dog {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 290px;
+  max-height: 600%;
+  object-fit: contain;
+  z-index: 1;
+}
+
+.hero-cat {
+  top: 10px;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 300px;
+  max-height: 100%;
+  object-fit: contain;
+  z-index: 1;
+}
+
+
+.news-section {
+  position: relative;
+  z-index: 1;
+}
+
+.paw-icon {
+  position: absolute;
+  z-index: 0;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.paw-hero-left {
+  top: 10px;
+  left: 270px;
+  width: 180px;
+  transform: rotate(-10deg);
+}
+
+.paw-hero-right {
+  bottom: 30px;
+  right: 280px;
+  width: 200px;
+  transform: rotate(-30deg);
+}
+
+.news-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 30px;
+}
+
+.news-title {
+  text-align: center;
+  font-size: 24px;
+  margin-top: 40px;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #222;
+}
+
+.news-button-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+
+/* === КАРТОЧКИ НОВОСТЕЙ === */
+.news-item {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 700px;
+  position: relative;
+  text-align: left;
+}
+
+.news-item p {
+  white-space: pre-wrap;
+  line-height: 1.6;
+  color: #444;
+}
+
+.news-item .swiper {
+  margin-top: 15px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.news-item .swiper-slide img,
+.news-item .swiper-slide video {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+
+.news-meta {
+  font-size: 0.85em;
+  color: #777;
+  margin-top: 10px;
+}
+
+.news-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.news-actions button {
+  background-color: #666;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.news-actions button:hover {
+  background-color: #444;
+}
+
+
+
+
+

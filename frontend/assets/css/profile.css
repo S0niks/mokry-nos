@@ -1,0 +1,89 @@
+body {
+  background-color: #E7F5F7;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  color: #333;
+}
+
+main {
+  padding: 40px 20px;
+}
+
+h1, h2 {
+  text-align: center;
+  color: #ff6200;
+  margin-bottom: 20px;
+}
+
+#profile-content, #user-events-section, #admin-volunteers {
+  background-color: #fff;
+  max-width: 700px;
+  margin: 30px auto;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+#avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+#avatar-img {
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  display: block;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #ff6200;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #e55a00;
+}
+
+#logout-button {
+  display: block;
+  margin: 30px auto;
+}
+
+/* Карточки мероприятий */
+#user-events {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.event-card {
+  background-color: #fefefe;
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+/* Список волонтеров */
+#volunteers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.volunteer-item {
+  background-color: #fefefe;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}

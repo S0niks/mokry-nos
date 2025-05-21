@@ -94,7 +94,7 @@ const updateNews = (req, res) => {
     }
 
     const { id } = req.params;
-    const { text } = req.body;
+    const { text, currentMedia } = req.body;
 
     if (!text) {
       return res.status(400).json({ message: 'Текст новости обязателен' });
@@ -109,26 +109,40 @@ const updateNews = (req, res) => {
       }
 
       const oldMedia = row.media;
-      const media = req.file ? `/images/${req.file.filename}` : req.body.media || null;
+
+      let newMedia;
+      if (req.files && req.files.length > 0) {
+        newMedia = JSON.stringify(req.files.map(f => `/images/${f.filename}`));
+      } else if (currentMedia) {
+        newMedia = currentMedia;
+      } else {
+        newMedia = oldMedia; // сохраняем старое, если ничего не пришло
+      }
+
       const updated_at = new Date().toISOString();
 
       db.run(
         `UPDATE news SET text = ?, media = ?, updated_at = ? WHERE id = ?`,
-        [text, media, updated_at, id],
+        [text, newMedia, updated_at, id],
         function (err) {
           if (err) {
             console.error('Ошибка при обновлении:', err);
             return res.status(400).json({ message: 'Ошибка обновления новости', error: err.message });
           }
-          if (this.changes === 0) {
-            return res.status(404).json({ message: 'Новость не найдена' });
-          }
 
-          if (req.file && oldMedia) {
-            const oldFilePath = path.join(__dirname, '../../frontend', oldMedia);
-            fs.unlink(oldFilePath, (unlinkErr) => {
-              if (unlinkErr) console.error('Ошибка удаления старого файла:', unlinkErr);
-            });
+          // Удаление старых файлов, если новые были загружены
+          if (req.files && req.files.length > 0 && oldMedia) {
+            try {
+              const oldFiles = JSON.parse(oldMedia);
+              oldFiles.forEach(filePath => {
+                const fullPath = path.join(__dirname, '../../frontend', filePath);
+                fs.unlink(fullPath, (unlinkErr) => {
+                  if (unlinkErr) console.error('Ошибка удаления старого файла:', unlinkErr);
+                });
+              });
+            } catch (e) {
+              console.error('Ошибка парсинга старых медиа:', e);
+            }
           }
 
           res.json({ message: 'Новость обновлена' });
@@ -137,6 +151,8 @@ const updateNews = (req, res) => {
     });
   });
 };
+
+
 
 const deleteNews = (req, res) => {
   const { id } = req.params;

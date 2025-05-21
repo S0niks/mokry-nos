@@ -1,0 +1,159 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #E7F5F7;
+  margin: 0;
+  padding: 20px;
+  text-align: center;
+}
+
+h1 {
+  color: #333;
+  margin-top: 20px;
+  font-size: 28px;
+}
+
+/* Центровка фильтра */
+#event-filters {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 20px auto;
+}
+
+#event-filters label {
+  font-weight: bold;
+  color: #333;
+}
+
+#event-filters select {
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background-color: white;
+  cursor: pointer;
+}
+
+#event-filters select:focus {
+  outline: none;
+  border-color: #ff6200;
+}
+
+/* Кнопка добавить */
+#admin-event-controls {
+  margin: 20px auto;
+  text-align: center;
+}
+
+#add-event-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #ff6200;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#add-event-button:hover {
+  background-color: #e65c00;
+}
+
+/* Сетка карточек */
+#event-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+  padding: 30px 0;
+}
+
+/* Карточка мероприятия */
+.event-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+  width: 300px;
+  height: 430px;
+  box-sizing: border-box;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.3s ease;
+}
+
+.event-card:hover {
+  transform: translateY(-5px);
+}
+
+.event-card img,
+.event-card video {
+  width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.event-card h3 {
+  font-size: 18px;
+  margin: 10px 0 5px;
+  color: #333;
+}
+
+.event-card p {
+  font-size: 14px;
+  color: #555;
+  flex-grow: 1;
+  margin-bottom: 10px;
+}
+
+.event-date {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 10px;
+}
+
+.event-actions {
+  margin-top: auto;
+}
+
+.event-actions button {
+  background-color: #666;
+  color: #fff;
+  padding: 8px 12px;
+  font-size: 14px;
+  border: none;
+  border-radius: 4px;
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+.event-actions button:hover {
+  background-color: #555;
+}
+
+.media-modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  justify-content: center;
+  align-items: center;
+}
+
+.media-modal img,
+.media-modal video {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 8px;
+}
+
+.media-modal.active {
+  display: flex;
+}

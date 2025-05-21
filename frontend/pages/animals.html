@@ -1,22 +1,26 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Животные</title>
-  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="/assets/css/main.css" />
+  <link rel="stylesheet" href="/assets/css/navbar.css" />
+  <link rel="stylesheet" href="/assets/css/animals.css" />
+  <link rel="stylesheet" href="/assets/css/modals.css" />
 </head>
-<body>
+<body style="background-color: #E7F5F7">
   <div id="navbar"></div>
 
-  <h1>Животные</h1>
+  <section class="animals-hero">
+    <h1 class="animals-title">Животные</h1>
+    <div id="admin-actions" class="animals-controls" style="display: none;">
+      <button id="open-add-animal-modal" class="main-button">Добавить животное</button>
+    </div>
+  </section>
 
-  <div id="admin-actions" style="display: none;">
-    <button id="open-add-animal-modal">Добавить животное</button>
-  </div>
-
-  <div id="filters">
-    <input type="text" id="name-filter" placeholder="Поиск по имени">
+  <section id="filters" class="animal-filters">
+    <input type="text" id="name-filter" placeholder="Поиск по имени" />
     <select id="species-filter">
       <option value="">Все виды</option>
       <option value="cat">Кошка</option>
@@ -33,8 +37,8 @@
       <option value="нашел семью">Нашел семью</option>
       <option value="на лечение">На лечение</option>
     </select>
-    <button id="reset-filters">Сбросить фильтры</button>
-  </div>
+    <button id="reset-filters" class="main-button">Сбросить фильтры</button>
+  </section>
 
   <div id="animal-list"></div>
 

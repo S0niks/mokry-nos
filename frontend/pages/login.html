@@ -3,18 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <title>Вход - Мокрый нос</title>
-  <link rel="stylesheet" href="/assets/css/styles.css">
+  <link rel="stylesheet" href="/assets/css/main.css" />
+  <link rel="stylesheet" href="/assets/css/navbar.css" />
+  <link rel="stylesheet" href="/assets/css/modals.css" />
+  <link rel="stylesheet" href="/assets/css/auth.css" />
 </head>
 <body>
   <div id="navbar"></div>
-  <h1>Вход</h1>
-  <form id="login-form">
-    <input type="email" id="email" placeholder="Email" required>
-    <input type="password" id="password" placeholder="Пароль" required>
-    <button type="submit">Войти</button>
-  </form>
-  <p>Нет аккаунта? <a href="/pages/register.html">Зарегистрируйтесь</a></p>
-
+  <main>
+    <div class="auth-container">
+      <h1>Вход</h1>
+      <form id="login-form">
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Пароль" required>
+        <button type="submit">Войти</button>
+      </form>
+      <p>Нет аккаунта? <a href="/pages/register.html">Зарегистрируйтесь</a></p>
+    </div>
+  </main>
   <script src="/assets/js/login.js"></script>
 </body>
 </html>

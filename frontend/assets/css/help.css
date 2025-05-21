@@ -1,0 +1,62 @@
+/* Основной стиль для help.html */
+body {
+  background-color: #E7F5F7;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+main {
+  padding: 40px 20px;
+}
+
+.help-section {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  padding: 30px;
+  margin: 30px auto;
+  max-width: 800px;
+  color: #333;
+}
+
+.help-section h1 {
+  font-size: 24px;
+  color: #ff6200;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.help-section p {
+  font-size: 16px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.help-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.help-section ul li {
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 15px;
+  text-align: center;
+}
+
+.help-section ul li:last-child {
+  border-bottom: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .help-section {
+    padding: 20px;
+    margin: 20px 15px;
+  }
+
+  .help-section h1 {
+    font-size: 20px;
+  }
+}

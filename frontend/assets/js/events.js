@@ -109,7 +109,7 @@
               return `
                 <div class="event-card">
                   <h3>${event.title}</h3>
-                  <p>${event.description}</p>
+                  <p>${event.description.replace(/\n/g, '<br>')}</p>
                   <p>Дата: ${new Date(event.event_date).toLocaleDateString('ru-RU')}</p>
                   ${event.media ? (event.media.endsWith('.mp4') ?
                     `<video src="${event.media}" controls style="max-width: 100%;"></video>` :
@@ -381,3 +381,33 @@
         }
       };
     });
+
+    // Открытие модального окна с медиа
+window.openMediaModal = function (src, isVideo = false) {
+  const modal = document.getElementById('media-modal');
+  const img = document.getElementById('modal-img');
+  const video = document.getElementById('modal-video');
+
+  if (isVideo) {
+    img.style.display = 'none';
+    video.src = src;
+    video.style.display = 'block';
+  } else {
+    video.style.display = 'none';
+    img.src = src;
+    img.style.display = 'block';
+  }
+
+  modal.classList.add('active');
+};
+
+window.closeMediaModal = function () {
+  const modal = document.getElementById('media-modal');
+  const img = document.getElementById('modal-img');
+  const video = document.getElementById('modal-video');
+
+  img.style.display = 'none';
+  video.style.display = 'none';
+  video.pause();
+  modal.classList.remove('active');
+};

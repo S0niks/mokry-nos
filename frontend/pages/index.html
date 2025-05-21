@@ -1,74 +1,87 @@
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Мокрый нос - Приют для животных</title>
-  <link rel="stylesheet" href="/assets/css/styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Мокрый нос - Главная</title>
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <link rel="stylesheet" href="/assets/css/navbar.css">
+  <link rel="stylesheet" href="/assets/css/index.css">
+  <link rel="stylesheet" href="/assets/css/modals.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" defer></script>
+  <script src="/assets/js/index.js" defer></script>
 </head>
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-<img id="dog-image" src="/assets/images/dog.png" alt="Собака">
 
-<body>
+<body style="background-color: #E7F5F7">
   <div id="navbar"></div>
 
-  <h1>Добро пожаловать в «Мокрый нос»</h1>
-  <p>Мы - приют для бездомных животных. Здесь вы можете помочь или взять друга!</p>
+  <header class="hero-section">
+    <div class="hero-text">
+      <h1>Региональная Красноярская общественная организация защиты животных</h1>
+      <p>РКООЗЖ «МОКРЫЙ НОС» объединяет волонтеров, неравнодушных граждан с активной жизненной позицией, просто добрых, инициативных людей, которые хотят помогать бездомным животным!</p>
+     <button onclick="window.location.href='/pages/help.html'" class="help-button">Хочу помочь!</button>
+    </div>
 
-  <button onclick="window.location.href='/pages/help.html'">Хочу помочь!</button>
+    <img src="/assets/images/dog.png" alt="Собака" class="hero-dog" id="dog-image">
+    <img src="/assets/images/cat.png" alt="Кошка" class="hero-cat" id="cat-image">
 
-  <h2>Новости</h2>
-  <div id="admin-news-controls" style="display: none;">
-    <button id="add-news-button">Добавить новость</button>
-  </div>
-  <div id="news-list"></div>
+    <!-- Лапки в приветствии -->
+    <img src="/assets/images/paw-orange.png" class="paw-icon paw-hero-left" alt="лапка">
+    <img src="/assets/images/paw-white.png" class="paw-icon paw-hero-right" alt="лапка">
+  </header>
 
-  <!-- Модальное окно для добавления новости -->
-  <div id="add-news-modal" class="modal" style="display: none;">
+      <section class="news-section">
+        <h2 class="news-title">Новости</h2>
+          <div class="news-button-wrapper" id="admin-news-controls" style="display: none;">
+            <button id="add-news-button">Добавить новость</button>
+          </div>
+        <div id="news-list"></div>
+      </section>
+  <!--/main-->
+
+  <!-- Модальные окна -->
+  <div id="add-news-modal" class="modal">
     <div class="modal-content">
       <span class="modal-close">×</span>
       <h2>Добавить новость</h2>
       <form id="add-news-form">
         <label for="add-news-text">Текст новости:</label>
         <textarea id="add-news-text" name="text" required></textarea>
-        <label for="add-news-media">Медиа (изображение или видео):</label>
-        <input type="file" id="add-news-media" name="media" accept="image/jpeg,image/jpg,image/png,video/mp4">
+        <label for="add-news-media">Медиа:</label>
+        <input type="file" id="add-news-media" name="media" accept="image/*,video/mp4" />
         <button type="submit">Добавить</button>
+        <button type="button" class="cancel-button">Отмена</button>
       </form>
     </div>
   </div>
 
-  <!-- Модальное окно для редактирования новости -->
-  <div id="edit-news-modal" class="modal" style="display: none;">
+  <div id="edit-news-modal" class="modal">
     <div class="modal-content">
       <span class="modal-close">×</span>
       <h2>Редактировать новость</h2>
       <form id="edit-news-form">
-        <input type="hidden" id="edit-news-id" name="id">
-        <label for="edit-news-text">Текст новости:</label>
+        <input type="hidden" id="edit-news-id" name="id" />
+        <label for="edit-news-text">Текст:</label>
         <textarea id="edit-news-text" name="text" required></textarea>
-        <label for="edit-news-media">Медиа (изображение или видео):</label>
-        <input type="file" id="edit-news-media" name="media" accept="image/jpeg,image/jpg,image/png,video/mp4">
+        <label for="edit-news-media">Медиа:</label>
+        <input type="file" id="edit-news-media" name="media" accept="image/*,video/mp4" />
         <p>Текущее медиа: <span id="edit-current-media"></span></p>
         <button type="submit">Сохранить</button>
+        <button type="button" class="cancel-button">Отмена</button>
       </form>
     </div>
   </div>
 
-  <!-- Модальное окно для удаления новости -->
-  <div id="delete-news-modal" class="modal" style="display: none;">
+  <div id="delete-news-modal" class="modal">
     <div class="modal-content">
       <span class="modal-close">×</span>
       <h2>Удалить новость</h2>
       <p>Вы уверены, что хотите удалить новость "<span id="delete-news-text"></span>"?</p>
-      <input type="hidden" id="delete-news-id">
+      <input type="hidden" id="delete-news-id" />
       <button id="confirm-delete-button">Удалить</button>
       <button class="cancel-button">Отмена</button>
     </div>
   </div>
-
-  <script src="/assets/js/index.js"></script>
 </body>
 </html>

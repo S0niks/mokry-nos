@@ -3,21 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <title>Регистрация - Мокрый нос</title>
-  <link rel="stylesheet" href="/assets/css/styles.css">
+  <link rel="stylesheet" href="/assets/css/main.css" />
+  <link rel="stylesheet" href="/assets/css/navbar.css" />
+  <link rel="stylesheet" href="/assets/css/modals.css" />
+  <link rel="stylesheet" href="/assets/css/auth.css" />
 </head>
 <body>
   <div id="navbar"></div>
-  <h1>Регистрация</h1>
-  <form id="signup-form">
-    <input type="email" id="email" placeholder="Email" required>
-    <input type="text" id="phone" placeholder="Номер телефона (+7...)" pattern="\+7[0-9]{10}" required>
-    <input type="text" id="name" placeholder="Ваше имя" required>
-    <input type="password" id="password" placeholder="Пароль" required>
-    <button type="submit">Зарегистрироваться</button>
-  </form>
-  <p>Уже есть аккаунт? <a href="/pages/login.html">Войти</a></p>
-
+  <main>
+    <div class="auth-container">
+      <h1>Регистрация</h1>
+      <form id="signup-form">
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="text" id="phone" placeholder="Номер телефона (+7...)" pattern="\+7[0-9]{10}" required>
+        <input type="text" id="name" placeholder="Ваше имя" required>
+        <input type="password" id="password" placeholder="Пароль" required>
+        <button type="submit">Зарегистрироваться</button>
+      </form>
+      <p>Уже есть аккаунт? <a href="/pages/login.html">Войти</a></p>
+    </div>
+  </main>
   <script src="/assets/js/register.js"></script>
-  
 </body>
+
 </html>
