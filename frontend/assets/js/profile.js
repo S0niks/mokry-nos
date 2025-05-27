@@ -151,81 +151,43 @@
               .catch(err => console.error('Ошибка загрузки волонтеров:', err));
           }
 
-          // Обработчик загрузки аватара
-          document.getElementById('upload-avatar-button').addEventListener('click', async () => {
-            const file = avatarInput.files[0];
-            if (!file) {
-              alert('Выберите файл для загрузки!');
-              return;
-            }
-            const formData = new FormData();
-            formData.append('avatar', file);
-            try {
-              const response = await fetch('/api/users/avatar', {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` },
-                body: formData
-              });
-              if (response.status === 401) {
-                localStorage.removeItem('token');
-                window.location.href = '/pages/login.html';
-                throw new Error('Требуется повторный вход');
-              }
-              const data = await response.json();
-              if (response.ok) {
-                alert('Аватар успешно загружен!');
-                document.getElementById('avatar-img').src = data.avatar;
-                document.getElementById('avatar-img').style.display = 'block';
-              } else {
-                alert(data.message || 'Ошибка загрузки аватара');
-              }
-            } catch (err) {
-              console.error('Ошибка:', err);
-              alert('Произошла ошибка. Попробуйте снова.');
-            }
+          // Обработчик выхода
+          logoutButton.addEventListener('click', () => {
+            console.log('Кнопка выхода нажата');
+            localStorage.removeItem('token');
+            alert('Вы вышли из профиля!');
+            window.location.href = '/pages/login.html';
           });
-        })
-        .catch(err => {
-          console.error('Ошибка загрузки профиля:', err);
-          alert('Не удалось загрузить данные профиля');
-        });
 
-      // Обработчик выхода
-      logoutButton.addEventListener('click', () => {
-        console.log('Кнопка выхода нажата');
-        localStorage.removeItem('token');
-        alert('Вы вышли из профиля!');
-        window.location.href = '/pages/login.html';
-      });
-
-      // Обновление роли пользователя
-      window.updateRole = async (userId, newRole) => {
-        if (confirm(`Сделать пользователя с ID ${userId} администратором?`)) {
-          try {
-            const response = await fetch(`/api/users/role/${userId}`, {
-              method: 'PUT',
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({ role: newRole })
-            });
-            if (response.status === 401) {
-              localStorage.removeItem('token');
-              window.location.href = '/pages/login.html';
-              throw new Error('Требуется повторный вход');
+          // Обновление роли пользователя
+          window.updateRole = async (userId, newRole) => {
+            if (confirm(`Сделать пользователя с ID ${userId} администратором?`)) {
+              try {
+                const response = await fetch(`/api/users/role/${userId}`, {
+                  method: 'PUT',
+                  headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({ role: newRole })
+                });
+                if (response.status === 401) {
+                  localStorage.removeItem('token');
+                  window.location.href = '/pages/login.html';
+                  throw new Error('Требуется повторный вход');
+                }
+                const data = await response.json();
+                if (response.ok) {
+                  alert('Роль обновлена!');
+                  window.location.reload();
+                } else {
+                  alert(data.message || 'Ошибка изменения роли');
+                }
+              } catch (err) {
+                console.error('Ошибка:', err);
+                alert('Произошла ошибка. Попробуйте снова.');
+              }
             }
-            const data = await response.json();
-            if (response.ok) {
-              alert('Роль обновлена!');
-              window.location.reload();
-            } else {
-              alert(data.message || 'Ошибка изменения роли');
-            }
-          } catch (err) {
-            console.error('Ошибка:', err);
-            alert('Произошла ошибка. Попробуйте снова.');
-          }
-        }
-      };
+          };
+        }); // <-- This closes the .then(data => { ... }) block
     });

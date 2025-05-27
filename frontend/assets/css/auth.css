@@ -32,6 +32,7 @@ main {
   display: flex;
   flex-direction: column;
   gap: 15px;
+  align-items: center;
 }
 
 .auth-container input {
@@ -51,6 +52,7 @@ main {
   font-size: 16px;
   cursor: pointer;
   transition: background-color 0.3s;
+  width: 100%;
 }
 
 .auth-container button:hover {
@@ -71,3 +73,4 @@ main {
 .auth-container a:hover {
   text-decoration: underline;
 }
+
