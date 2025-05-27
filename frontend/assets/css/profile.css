@@ -25,20 +25,35 @@ h1, h2 {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
-#avatar-section {
+.profile-box {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
 }
 
-#avatar-img {
-  border-radius: 50%;
-  width: 120px;
-  height: 120px;
-  object-fit: cover;
-  display: block;
+.profile-info {
+  flex: 1 1 auto;
 }
+
+.logout-btn {
+  align-self: flex-end;
+  margin-left: auto;
+  margin-top: auto;
+  background-color: #ff6200;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.logout-btn:hover {
+  background-color: #e55a00;
+}
+
 
 button {
   padding: 10px 20px;

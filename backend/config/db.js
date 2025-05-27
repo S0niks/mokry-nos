@@ -28,8 +28,7 @@ db.serialize(() => {
       species TEXT NOT NULL CHECK(species IN ('cat', 'dog')),
       gender TEXT NOT NULL CHECK(gender IN ('male', 'female')),
       description TEXT,
-      status TEXT NOT NULL,
-      image TEXT
+      status TEXT NOT NULL
     )
   `);
   db.run(`

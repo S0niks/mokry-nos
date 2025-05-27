@@ -110,11 +110,25 @@
         })
         .then(data => {
           profileContent.innerHTML = `
-            <p>Имя: ${data.name}</p>
-            <p>Email: ${data.email}</p>
-            <p>Телефон: ${data.phone || 'Не указан'}</p>
-            <p>Роль: ${data.role === 'admin' ? 'Администратор' : 'Волонтер'}</p>
+            <div class="profile-box">
+              <div class="profile-info">
+                <p>Имя: ${data.name}</p>
+                <p>Email: ${data.email}</p>
+                <p>Телефон: ${data.phone || 'Не указан'}</p>
+                <p>Роль: ${data.role === 'admin' ? 'Администратор' : 'Волонтер'}</p>
+              </div>
+              <button id="logout-button" class="logout-btn">Выйти из профиля</button>
+            </div>
           `;
+
+          // Обработчик выхода
+          const logoutButton = document.getElementById('logout-button');
+          logoutButton.addEventListener('click', () => {
+            console.log('Кнопка выхода нажата');
+            localStorage.removeItem('token');
+            alert('Вы вышли из профиля!');
+            window.location.href = '/pages/login.html';
+          });
 
           // Показать секцию мероприятий только для не-администраторов
           if (data.role !== 'admin') {
@@ -151,13 +165,7 @@
               .catch(err => console.error('Ошибка загрузки волонтеров:', err));
           }
 
-          // Обработчик выхода
-          logoutButton.addEventListener('click', () => {
-            console.log('Кнопка выхода нажата');
-            localStorage.removeItem('token');
-            alert('Вы вышли из профиля!');
-            window.location.href = '/pages/login.html';
-          });
+          
 
           // Обновление роли пользователя
           window.updateRole = async (userId, newRole) => {
@@ -189,5 +197,5 @@
               }
             }
           };
-        }); // <-- This closes the .then(data => { ... }) block
+        }); 
     });
