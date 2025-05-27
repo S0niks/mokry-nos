@@ -11,6 +11,5 @@ router.post('/login', userController.login);
 router.get('/profile', authMiddleware.authenticate, userController.getProfile);
 router.get('/volunteers', authMiddleware.authenticate, authMiddleware.restrictTo('admin'), userController.getAllVolunteers);
 router.put('/role/:id', authMiddleware.authenticate, authMiddleware.restrictTo('admin'), userController.updateRole);
-router.post('/avatar', authMiddleware.authenticate, userController.updateAvatar);
 
 module.exports = router;

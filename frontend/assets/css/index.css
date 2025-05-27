@@ -118,8 +118,9 @@
 }
 
 .news-item p {
-  white-space: pre-wrap;
-  line-height: 1.6;
+  white-space: normal;
+  line-height: 1.4;
+  margin-bottom: 6px;
   color: #444;
 }
 

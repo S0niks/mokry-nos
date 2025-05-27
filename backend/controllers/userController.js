@@ -105,30 +105,5 @@ const updateRole = (req, res) => {
   );
 };
 
-const updateAvatar = (req, res) => {
-  upload(req, res, (err) => {
-    if (err) return res.status(400).json({ message: err.message || 'Ошибка загрузки файла' });
-    const userId = req.user.id;
-    const avatar = req.file ? `/images/avatars/${req.file.filename}` : null;
-    if (!avatar) return res.status(400).json({ message: 'Файл не загружен' });
-    db.get(`SELECT avatar FROM users WHERE id = ?`, [userId], (err, row) => {
-      if (err) return res.status(500).json({ message: 'Ошибка сервера' });
-      if (row.avatar) {
-        const oldAvatarPath = path.join(__dirname, '../../frontend', row.avatar);
-        fs.unlink(oldAvatarPath, (unlinkErr) => {
-          if (unlinkErr) console.error('Ошибка удаления старого аватара:', unlinkErr);
-        });
-      }
-      db.run(
-        `UPDATE users SET avatar = ? WHERE id = ?`,
-        [avatar, userId],
-        function (err) {
-          if (err) return res.status(500).json({ message: 'Ошибка сервера' });
-          res.json({ message: 'Аватар обновлен', avatar });
-        }
-      );
-    });
-  });
-};
 
-module.exports = { register, login, getProfile, getAllVolunteers, updateRole, updateAvatar };
+module.exports = { register, login, getProfile, getAllVolunteers, updateRole, };

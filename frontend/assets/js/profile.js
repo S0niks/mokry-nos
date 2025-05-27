@@ -22,8 +22,6 @@
       const userEventsList = document.getElementById('user-events');
       const adminVolunteers = document.getElementById('admin-volunteers');
       const volunteersList = document.getElementById('volunteers-list');
-      const uploadAvatarButton = document.getElementById('upload-avatar-button');
-      const avatarInput = document.getElementById('avatar-upload');
       const logoutButton = document.getElementById('logout-button');
 
       if (!token) {
@@ -116,11 +114,6 @@
             <p>Email: ${data.email}</p>
             <p>Телефон: ${data.phone || 'Не указан'}</p>
             <p>Роль: ${data.role === 'admin' ? 'Администратор' : 'Волонтер'}</p>
-            <div id="avatar-section">
-              <img id="avatar-img" src="${data.avatar || ''}" alt="Аватар" style="max-width: 150px; ${data.avatar ? '' : 'display: none;'}">
-              <input type="file" id="avatar-upload" accept="image/jpeg,image/jpg,image/png">
-              <button id="upload-avatar-button">Загрузить аватар</button>
-            </div>
           `;
 
           // Показать секцию мероприятий только для не-администраторов
