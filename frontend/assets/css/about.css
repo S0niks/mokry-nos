@@ -1,0 +1,82 @@
+.about-container {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  color: #333;
+}
+
+.about-container h1 {
+  text-align: center;
+  color: #ff6200;
+  margin-bottom: 30px;
+}
+
+.about-text p {
+  margin-bottom: 18px;
+  line-height: 1.6;
+  text-align: justify;
+}
+
+.organizers {
+  margin-top: 60px;
+  text-align: center;
+}
+
+.organizers h2 {
+  font-size: 24px;
+  color: #ff6200;
+  margin-bottom: 10px;
+}
+
+.contact-invite {
+  font-size: 16px;
+  margin-bottom: 30px;
+}
+
+.organizer-cards {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 30px;
+}
+
+.organizer {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  width: 250px;
+  text-align: center;
+}
+
+.organizer h3 {
+  margin: 0 0 10px;
+  font-size: 18px;
+  color: #333;
+}
+
+.organizer .role {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.organizer .phone {
+  font-size: 14px;
+  color: #777;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .organizer-cards {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .organizer {
+    width: 90%;
+  }
+}

@@ -229,7 +229,8 @@
         }
       });
 
-      // Добавление мероприятия
+      
+      
       document.getElementById('add-event-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const formData = new FormData();

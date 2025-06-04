@@ -60,3 +60,56 @@ main {
     font-size: 20px;
   }
 }
+
+.help-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  margin: 40px auto;
+  max-width: 1200px;
+}
+
+/* Делаем карточки адаптивными в .help-wrapper */
+.help-wrapper .help-section {
+  flex: 1 1 300px;
+  min-width: 280px;
+  max-width: 360px;
+}
+
+/* Фотографии */
+.help-photos {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin: 30px auto 60px;
+  max-width: 800px;
+  padding: 0 20px;
+}
+
+.help-photos img {
+  width: 100%;
+  max-width: 380px;
+  height: auto;
+  border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive: карточки и фото по одному в столбик */
+@media (max-width: 768px) {
+  .help-wrapper {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .help-photos {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .help-photos img {
+    max-width: 100%;
+  }
+}

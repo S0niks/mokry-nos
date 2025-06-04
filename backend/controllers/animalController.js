@@ -42,7 +42,6 @@ const addAnimal = (req, res) => {
       return res.status(400).json({ message: 'Все поля обязательны' });
     }
 
-    // Сохраняем имя в нижнем регистре для упрощения поиска
     const normalizedName = name.toLocaleLowerCase('ru-RU');
 
     db.run(

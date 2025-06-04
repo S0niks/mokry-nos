@@ -179,7 +179,7 @@ const toggleEventLike = (req, res) => {
     }
 
     if (row) {
-      // Удалить лайк
+      
       db.run(`DELETE FROM user_events WHERE user_id = ? AND event_id = ?`, [user_id, event_id], function (err) {
         if (err) {
           console.error('Ошибка при удалении лайка:', err);
@@ -188,7 +188,7 @@ const toggleEventLike = (req, res) => {
         res.json({ message: 'Лайк удален' });
       });
     } else {
-      // Добавить лайк
+     
       db.run(
         `INSERT INTO user_events (user_id, event_id, created_at) VALUES (?, ?, ?)`,
         [user_id, event_id, created_at],
